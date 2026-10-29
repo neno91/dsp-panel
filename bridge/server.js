@@ -378,8 +378,12 @@ let pollTimer = null, keepAliveTimer = null, watchdogTimer = null, lastRx = 0;
    with a fallback timer in case a command gets no reply, and a small minimum
    gap between commands. */
 const txQueue = [];
-let inFlight = false, inFlightTimer = null, lastTx = 0;
-const PACE = () => ({ minGapMs: SITE.dsp.minGapMs != null ? SITE.dsp.minGapMs : 100, replyTimeoutMs: SITE.dsp.replyTimeoutMs != null ? SITE.dsp.replyTimeoutMs : 400 });
+let inFlight = 0, inFlightTimer = null, lastTx = 0;
+const PACE = () => ({ minGapMs: SITE.dsp.minGapMs != null ? SITE.dsp.minGapMs : 100, replyTimeoutMs: SITE.dsp.replyTimeoutMs != null ? SITE.dsp.replyTimeoutMs : 400,
+  burst: SITE.dsp.burst != null ? Math.max(1, Math.min(10, Number(SITE.dsp.burst))) : 5 });
+/* User actions (urgent) may have up to `burst` commands in flight at once with no gap between them, so a
+   group fader moving five zones updates all five in one go instead of one per pacing interval. Background
+   state reads stay strictly one-at-a-time with the gap – those are the bursts that stalled the DMP. */
 
 /* urgent = a user action: goes ahead of pending view queries (the ~75 reads at session start
    would otherwise delay the first button presses by several seconds). Queue items: { c, urgent } */
@@ -391,18 +395,23 @@ function dspSend(cmd, urgent, key) {
   if (urgent) { let i = 0; while (i < txQueue.length && txQueue[i].urgent) i++; txQueue.splice(i, 0, item); } else txQueue.push(item);
   pump();
 }
+let pumpTimer = null;
 function pump() {
-  if (inFlight || !txQueue.length || !sock || sock.destroyed) return;
-  const pace = PACE();
-  const wait = pace.minGapMs - (Date.now() - lastTx);
-  if (wait > 0) { setTimeout(pump, wait); return; }
+  if (!txQueue.length || !sock || sock.destroyed) return;
+  const pace = PACE(), next = txQueue[0];
+  if (next.urgent ? inFlight >= pace.burst : inFlight > 0) return;             // wait for replies
+  if (!next.urgent || inFlight === 0) {                                          // the gap applies between paced sends, not inside a burst
+    const wait = pace.minGapMs - (Date.now() - lastTx);
+    if (wait > 0) { clearTimeout(pumpTimer); pumpTimer = setTimeout(pump, wait); return; }
+  }
   const c = txQueue.shift().c;
-  inFlight = true; lastTx = Date.now();
+  inFlight++; lastTx = Date.now();
   sock.write(c);
   if (process.env.DSP_DEBUG) log("DSP ←", JSON.stringify(c));
-  inFlightTimer = setTimeout(() => { inFlight = false; pump(); }, pace.replyTimeoutMs);   // no reply → move on
+  clearTimeout(inFlightTimer); inFlightTimer = setTimeout(() => { inFlight = 0; pump(); }, pace.replyTimeoutMs);   // no reply → move on
+  if (next.urgent) pump();                                                       // fill the burst
 }
-function replied() { clearTimeout(inFlightTimer); inFlight = false; pump(); }
+function replied() { if (inFlight > 0) inFlight--; if (inFlight === 0) clearTimeout(inFlightTimer); pump(); }
 
 function connectDsp() {
   clearTimeout(reconnectTimer);
@@ -427,7 +436,7 @@ function connectDsp() {
   });
   const down = why => {
     if (dspReady || sock) log("DSP: link down", why || "");
-    dspReady = false; sock = null; rxBuf = ""; txQueue.length = 0; inFlight = false; clearTimeout(inFlightTimer);
+    dspReady = false; sock = null; rxBuf = ""; txQueue.length = 0; inFlight = 0; clearTimeout(inFlightTimer);
     clearTimeout(loginTimer);
     clearInterval(pollTimer); pollTimer = null;
     clearInterval(keepAliveTimer); keepAliveTimer = null;

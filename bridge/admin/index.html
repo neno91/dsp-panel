@@ -111,8 +111,9 @@
     <div class="row">
       <div><label data-t>Gap between commands (ms)</label><input id="dsp-gap" type="number" min="0" max="2000" step="10"></div>
       <div><label data-t>Max wait for a reply (ms)</label><input id="dsp-reply" type="number" min="50" max="5000" step="50"></div>
+      <div><label data-t>Burst (user commands at once)</label><input id="dsp-burst" type="number" min="1" max="10"></div>
     </div>
-    <p class="help" data-t>The bridge sends one command at a time and waits for the DSP's reply before the next. Increase the gap if the DMP drops the link at start-up; 75 objects are read in about 75 × gap.</p>
+    <p class="help" data-t>State reads go one at a time with the gap between them (increase the gap if the DMP drops the link at start-up; 75 objects are read in about 75 × gap). User actions may be sent in a burst – a group fader moving five zones sends all five gain commands at once (burst 5) instead of one per gap.</p>
     <button type="button" id="btn-reconnect" data-t>Reconnect</button>
   </section>
 
@@ -270,8 +271,8 @@
     "Upload configuration": "Last opp konfigurasjon", "Restore the configuration from a downloaded site.json": "Gjenopprett oppsettet fra en nedlastet site.json",
     "DSP connection": "DSP-tilkobling", "IP address": "IP-adresse", "Port": "Port", "Password (empty = none)": "Passord (tomt = ingen)",
     "Keepalive (ms)": "Keepalive (ms)", "Silence timeout (ms)": "Stillhets-timeout (ms)", "Reconnect (ms)": "Reconnect (ms)",
-    "Gap between commands (ms)": "Pause mellom kommandoer (ms)", "Max wait for a reply (ms)": "Vent på svar maks (ms)",
-    "The bridge sends one command at a time and waits for the DSP's reply before the next. Increase the gap if the DMP drops the link at start-up; 75 objects are read in about 75 × gap.": "Broen sender én kommando om gangen og venter på svar fra DSP-en før neste. Øk pausen hvis DMP-en mister forbindelsen ved oppstart; 75 objekter leses på ca. 75 × pause.",
+    "Gap between commands (ms)": "Pause mellom kommandoer (ms)", "Max wait for a reply (ms)": "Vent på svar maks (ms)", "Burst (user commands at once)": "Burst (brukerkommandoer samtidig)",
+    "State reads go one at a time with the gap between them (increase the gap if the DMP drops the link at start-up; 75 objects are read in about 75 × gap). User actions may be sent in a burst – a group fader moving five zones sends all five gain commands at once (burst 5) instead of one per gap.": "Statuslesinger går én om gangen med pause mellom (øk pausen hvis DMP-en mister forbindelsen ved oppstart; 75 objekter leses på ca. 75 × pause). Brukerhandlinger kan sendes i burst – en gruppefader som flytter fem soner sender alle fem gain-kommandoene samtidig (burst 5) i stedet for én per pause.",
     "Reconnect": "Koble til på nytt", "Control": "Styring", "Mode": "Modus", "Direct (blocks / OID)": "Direkte (blokker/OID)", "DMP groups": "DMP-grupper",
     "Input level block": "Inngangsnivå-blokk", "Input mute block": "Inngangsmute-blokk", "Zone block (output)": "Sone-blokk (utgang)",
     "Direct: input <em>n</em> → level <code>401(n−1)</code>, mute <code>400(n−1)</code>; zone with output <em>o</em> → <code>600(o−1)</code>. Groups: input n → gain group n / mute group 10+n, zone o → 20+o / 25+o.": "Direkte: inngang <em>n</em> → nivå <code>401(n−1)</code>, mute <code>400(n−1)</code>; sone med utgang <em>o</em> → <code>600(o−1)</code>. Grupper: inngang n → gain-gruppe n / mute-gruppe 10+n, sone o → 20+o / 25+o.",
@@ -568,7 +569,7 @@
   function fillForm() {
     $("#dsp-host").value = site.dsp.host; $("#dsp-port").value = site.dsp.port; $("#dsp-password").value = site.dsp.password || "";
     $("#dsp-keepalive").value = site.dsp.keepAliveMs; $("#dsp-silence").value = site.dsp.silenceTimeoutMs; $("#dsp-reconnect").value = site.dsp.reconnectMs;
-    $("#dsp-gap").value = site.dsp.minGapMs != null ? site.dsp.minGapMs : 100; $("#dsp-reply").value = site.dsp.replyTimeoutMs != null ? site.dsp.replyTimeoutMs : 400;
+    $("#dsp-gap").value = site.dsp.minGapMs != null ? site.dsp.minGapMs : 100; $("#dsp-reply").value = site.dsp.replyTimeoutMs != null ? site.dsp.replyTimeoutMs : 400; $("#dsp-burst").value = site.dsp.burst != null ? site.dsp.burst : 5;
     $("#ctrl-mode").value = site.control.mode; $("#ctrl-level").value = site.control.inputLevelBlock; $("#ctrl-mute").value = site.control.inputMuteBlock; $("#ctrl-zone").value = site.control.zoneBlock;
     $("#lv-in-min").value = site.levels.input.min; $("#lv-in-max").value = site.levels.input.max; $("#lv-zone-min").value = site.levels.zone.min; $("#lv-zone-max").value = site.levels.zone.max;
     $("#site-name").value = site.site.name; $("#site-area").value = site.site.area; $("#ui-step").value = (site.ui || {}).volumeStepPercent || 5; $("#ui-lang").value = (site.ui || {}).lang || "en"; $("#ui-zones").value = (site.ui || {}).zoneLayout || "scroll"; $("#ui-sources").value = (site.ui || {}).sourceLayout || "tiles"; $("#ui-src-cols").value = String((site.ui || {}).sourceColumns != null ? (site.ui || {}).sourceColumns : 2); $("#admin-password").value = (site.admin || {}).password || "";
@@ -578,7 +579,7 @@
   function readForm() {
     site.dsp.host = $("#dsp-host").value.trim(); site.dsp.port = Number($("#dsp-port").value); site.dsp.password = $("#dsp-password").value;
     site.dsp.keepAliveMs = Number($("#dsp-keepalive").value); site.dsp.silenceTimeoutMs = Number($("#dsp-silence").value); site.dsp.reconnectMs = Number($("#dsp-reconnect").value);
-    site.dsp.minGapMs = Number($("#dsp-gap").value); site.dsp.replyTimeoutMs = Number($("#dsp-reply").value);
+    site.dsp.minGapMs = Number($("#dsp-gap").value); site.dsp.replyTimeoutMs = Number($("#dsp-reply").value); site.dsp.burst = Number($("#dsp-burst").value) || 5;
     site.control = { mode: $("#ctrl-mode").value, inputLevelBlock: $("#ctrl-level").value.trim(), inputMuteBlock: $("#ctrl-mute").value.trim(), zoneBlock: $("#ctrl-zone").value.trim() };
     site.levels = { input: { min: Number($("#lv-in-min").value), max: Number($("#lv-in-max").value) }, zone: { min: Number($("#lv-zone-min").value), max: Number($("#lv-zone-max").value) } };
     site.site = { name: $("#site-name").value.trim(), area: $("#site-area").value.trim() };

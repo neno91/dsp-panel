@@ -41,7 +41,8 @@
     "silenceTimeoutMs": 90000,
     "minGapMs": 100,
     "replyTimeoutMs": 400,
-    "pollMs": 0
+    "pollMs": 0,
+    "burst": 5
   },
   "control": {
     "mode": "direct",

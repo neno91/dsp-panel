@@ -86,7 +86,7 @@ writes `site.json`, re-reads the DSP and reloads every open panel.
 
 | Section | What |
 |---|---|
-| DSP connection | IP, port, password, keepalive/timeouts, command pacing, reconnect |
+| DSP connection | IP, port, password, keepalive/timeouts, command pacing (gap between state reads, reply timeout, burst size for user actions), reconnect |
 | Control | direct block control (default) or DMP groups; block numbers; fader dB ranges |
 | Site and panel | name, volume step, panel language (English / Norwegian, overridable per screen; the admin page has its own language switch in the header, English by default), **zones layout** (side-scrolling row of full-height cards – one or two rows – or a wrapping grid), **source buttons** (tiles or list, 2–5 per row or as many as fit; short names are used when tiles get narrow), admin password, bridge address as seen from the screens, token requirement |
 | Appearance | logo and background image (uploaded, stored in `bridge/data/`, bundled into the `.ch5z`), logo height, background darkening, the complete colour palette (14 colours, with presets) – edits show live in the preview, *Save* applies them everywhere |
@@ -148,8 +148,10 @@ verbose mode 3 so it reports every change, whoever made it.
 
 Gains are sent in tenths of dB with the +2048 offset, scaled between the dB
 ranges set under *Control*. *DMP groups* mode uses DSP groups instead
-(`advanced.groupsFallback` in `site.json`). One command is in flight at a time
-with a configurable gap; user actions go ahead of queued state reads.
+(`advanced.groupsFallback` in `site.json`). State reads go one at a time with a
+configurable gap; user actions go ahead of them and may be sent as a burst
+(default 5 in flight – a group fader moving five zones updates all five at
+once), and a newer value for the same control replaces one still queued.
 
 WebSocket protocol (JSON, both directions): `{"t":"b"|"n","j":<join>,"v":<value>}`;
 `{"t":"sys","dsp":bool}` link state; `{"t":"sys","reload":true}` config changed.
