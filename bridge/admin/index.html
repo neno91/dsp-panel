@@ -1,0 +1,637 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title data-t>DSP Panel – administration</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Sora:wght@500;600&family=IBM+Plex+Sans:wght@400;500;600&display=swap">
+<style>
+  :root {
+    --bg: #062330; --card: #0b3142; --raised: #124256; --line: rgba(170,210,230,.16);
+    --teal: #2689a8; --teal-hi: #4fb6d4; --amber: #f2b24a; --fg: #eef6f9; --dim: #a9c3cf; --faint: #6f8f9d; --ok: #58d48f; --down: #ef6b5b;
+    --display: "Sora", system-ui, sans-serif; --body: "IBM Plex Sans", system-ui, sans-serif;
+    color-scheme: dark;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--fg); font: 14px/1.4 var(--body); }
+  header { display: flex; align-items: center; gap: 12px; flex-wrap: wrap; padding: 14px max(16px, 3vw); border-bottom: 1px solid var(--line); background: #041721; position: sticky; top: 0; z-index: 5; }
+  header h1 { margin: 0; font: 600 18px var(--display); }
+  header .spacer { flex: 1; }
+  header select { width: auto; padding: 7px 10px; }
+  .status { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; letter-spacing: .05em; text-transform: uppercase; color: var(--dim); }
+  .status::before { content: ""; width: 8px; height: 8px; border-radius: 50%; background: var(--faint); }
+  .status.ok::before { background: var(--ok); box-shadow: 0 0 8px var(--ok); } .status.down::before { background: var(--down); }
+  main { padding: 18px max(16px, 3vw) 60px; display: grid; gap: 18px; grid-template-columns: repeat(auto-fit, minmax(340px, 1fr)); max-width: 1500px; }
+  section { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 16px; min-width: 0; }
+  section.wide { grid-column: 1 / -1; }
+  h2 { margin: 0 0 12px; font: 600 15px var(--display); display: flex; align-items: center; gap: 10px; }
+  h2 small { font: 400 12px var(--body); color: var(--faint); }
+  label { display: block; font-size: 12px; color: var(--dim); margin-bottom: 4px; }
+  input, select { width: 100%; background: #041721; color: var(--fg); border: 1px solid var(--line); border-radius: 8px; padding: 8px 10px; font: inherit; }
+  input:focus, select:focus { outline: 2px solid var(--teal-hi); outline-offset: 1px; }
+  input[type="number"] { width: 90px; }
+  .row { display: grid; gap: 10px; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); margin-bottom: 10px; }
+  table { width: 100%; border-collapse: collapse; }
+  th, td { text-align: left; padding: 6px 6px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: var(--faint); font-weight: 600; }
+  td input, td select { padding: 6px 8px; }
+  td.num input { width: 70px; }
+  .tools { display: flex; gap: 4px; }
+  button { font: inherit; color: var(--fg); background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 7px 12px; cursor: pointer; }
+  button:hover { background: #1a556c; }
+  button.primary { background: var(--teal); border-color: transparent; color: #fff; font-weight: 600; }
+  button.primary:hover { background: var(--teal-hi); }
+  button.danger { color: #ffb0a5; } button.danger:hover { background: rgba(239,107,91,.2); }
+  button.icon { padding: 5px 8px; line-height: 1; }
+  button[disabled] { opacity: .5; cursor: default; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; align-items: center; padding: 12px max(16px, 3vw); background: #041721; border-top: 1px solid var(--line); z-index: 5; }
+  .bar .msg { flex: 1; font-size: 13px; color: var(--dim); white-space: pre-wrap; }
+  .bar .msg.err { color: #ffb0a5; } .bar .msg.ok { color: var(--ok); }
+  .ref { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--dim); }
+  .help { font-size: 12px; color: var(--faint); margin: 6px 0 0; }
+  code { font-family: ui-monospace, Menlo, monospace; background: #041721; padding: 1px 5px; border-radius: 4px; }
+  .checks { display: flex; flex-wrap: wrap; gap: 6px 14px; }
+  .checks label { display: inline-flex; align-items: center; gap: 5px; margin: 0; font-size: 13px; color: var(--fg); white-space: nowrap; }
+  .checks input { width: auto; }
+  /* appearance editor */
+  .theme { display: grid; gap: 16px; grid-template-columns: minmax(300px, 1fr) minmax(360px, 1.6fr); align-items: start; }
+  .theme .asset { display: grid; grid-template-columns: 112px 1fr; gap: 10px; align-items: center; margin-bottom: 12px; }
+  .theme .thumb { width: 112px; height: 64px; border-radius: 8px; border: 1px solid var(--line); background: #041721 center / contain no-repeat; display: grid; place-items: center; color: var(--faint); font-size: 11px; }
+  .theme .thumb.cover { background-size: cover; }
+  .theme .asset .btns { display: flex; flex-wrap: wrap; gap: 6px; }
+  .theme .swatches { display: grid; gap: 6px 14px; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); margin: 4px 0 8px; }
+  .theme .swatch { display: flex; align-items: center; gap: 8px; min-width: 0; height: 36px; }
+  .theme .swatch label { margin: 0; font-size: 13px; color: var(--fg); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  .theme input[type="color"] { flex: none; width: 44px; height: 30px; padding: 2px; cursor: pointer; border-radius: 6px; }
+  .theme input[type="range"] { width: 100%; }
+  .theme .preview { border: 1px solid var(--line); border-radius: 12px; overflow: hidden; background: #041721; }
+  .theme .preview iframe { display: block; width: 100%; aspect-ratio: 4 / 3; min-height: 520px; border: 0; }
+  .theme .preview .pv-head { display: flex; justify-content: space-between; align-items: center; padding: 8px 12px; font-size: 12px; color: var(--faint); border-bottom: 1px solid var(--line); }
+  @media (max-width: 900px) { .theme { grid-template-columns: 1fr; } }
+  /* screens: one card per screen */
+  .screens { display: grid; gap: 12px; }
+  .screen { background: var(--raised); border: 1px solid var(--line); border-radius: 12px; padding: 12px 14px; display: grid; gap: 10px; }
+  .screen .fields { display: grid; gap: 10px; grid-template-columns: minmax(160px, 2fr) minmax(130px, 1.3fr) minmax(90px, .9fr) minmax(120px, 1.2fr) 70px 120px minmax(90px, .9fr); }
+  .screen .fields input[type="number"] { width: 100%; }
+  .screen .picks { display: grid; gap: 10px 24px; grid-template-columns: 1fr auto; align-items: start; }
+  .screen .foot { display: flex; flex-wrap: wrap; gap: 8px; align-items: center; border-top: 1px solid var(--line); padding-top: 10px; }
+  .screen .foot .token { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--dim); background: #041721; border: 1px solid var(--line); border-radius: 8px; padding: 6px 10px; max-width: 100%; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+  .screen .foot .spacer { flex: 1; }
+  @media (max-width: 900px) { .screen .fields { grid-template-columns: 1fr 1fr; } .screen .picks { grid-template-columns: 1fr; } }
+  @media (max-width: 700px) { table { display: block; overflow-x: auto; } }
+</style>
+</head>
+<body>
+<header>
+  <h1 data-t>DSP Panel – administration</h1>
+  <span class="status" id="dsp-status">DSP</span>
+  <span class="spacer"></span>
+  <select id="admin-lang" aria-label="Language"><option value="en">English</option><option value="nb">Norsk</option></select>
+  <a href="/" target="_blank"><button type="button" data-t>Open the panel</button></a>
+  <a href="/api/admin/export/site.json"><button type="button" data-t data-t-title title="Backup of the whole configuration (site.json)">Download configuration</button></a>
+  <button type="button" id="btn-import" data-t data-t-title title="Restore the configuration from a downloaded site.json">Upload configuration</button>
+  <input type="file" id="import-file" accept=".json,application/json" hidden>
+</header>
+
+<main id="main" hidden>
+  <section>
+    <h2><span data-t>DSP connection</span> <small>Extron DMP 128 / DMP 64</small></h2>
+    <div class="row">
+      <div><label data-t>IP address</label><input id="dsp-host"></div>
+      <div><label data-t>Port</label><input id="dsp-port" type="number" min="1" max="65535"></div>
+      <div><label data-t>Password (empty = none)</label><input id="dsp-password" type="password" autocomplete="off"></div>
+    </div>
+    <div class="row">
+      <div><label data-t>Keepalive (ms)</label><input id="dsp-keepalive" type="number" min="0" step="1000"></div>
+      <div><label data-t>Silence timeout (ms)</label><input id="dsp-silence" type="number" min="0" step="1000"></div>
+      <div><label data-t>Reconnect (ms)</label><input id="dsp-reconnect" type="number" min="500" step="500"></div>
+    </div>
+    <div class="row">
+      <div><label data-t>Gap between commands (ms)</label><input id="dsp-gap" type="number" min="0" max="2000" step="10"></div>
+      <div><label data-t>Max wait for a reply (ms)</label><input id="dsp-reply" type="number" min="50" max="5000" step="50"></div>
+    </div>
+    <p class="help" data-t>The bridge sends one command at a time and waits for the DSP's reply before the next. Increase the gap if the DMP drops the link at start-up; 75 objects are read in about 75 × gap.</p>
+    <button type="button" id="btn-reconnect" data-t>Reconnect</button>
+  </section>
+
+  <section>
+    <h2 data-t>Control</h2>
+    <div class="row">
+      <div><label data-t>Mode</label>
+        <select id="ctrl-mode"><option value="direct" data-t>Direct (blocks / OID)</option><option value="groups" data-t>DMP groups</option></select></div>
+      <div><label data-t>Input level block</label><input id="ctrl-level" maxlength="3"></div>
+      <div><label data-t>Input mute block</label><input id="ctrl-mute" maxlength="3"></div>
+      <div><label data-t>Zone block (output)</label><input id="ctrl-zone" maxlength="3"></div>
+    </div>
+    <p class="help" data-t>Direct: input <em>n</em> → level <code>401(n−1)</code>, mute <code>400(n−1)</code>; zone with output <em>o</em> → <code>600(o−1)</code>. Groups: input n → gain group n / mute group 10+n, zone o → 20+o / 25+o.</p>
+    <h2 style="margin-top:14px"><span data-t>Fader ranges</span> <small>dB</small></h2>
+    <div class="row">
+      <div><label data-t>Inputs min</label><input id="lv-in-min" type="number" step="1"></div>
+      <div><label data-t>Inputs max</label><input id="lv-in-max" type="number" step="1"></div>
+      <div><label data-t>Zones min</label><input id="lv-zone-min" type="number" step="1"></div>
+      <div><label data-t>Zones max</label><input id="lv-zone-max" type="number" step="1"></div>
+    </div>
+  </section>
+
+  <section>
+    <h2 data-t>Site and panel</h2>
+    <div class="row">
+      <div><label data-t>Name</label><input id="site-name"></div>
+      <div><label data-t>Area</label><input id="site-area"></div>
+    </div>
+    <div class="row">
+      <div><label data-t>Volume step −/+ (%)</label><input id="ui-step" type="number" min="1" max="25"></div>
+      <div><label data-t>Panel language</label><select id="ui-lang"><option value="en">English</option><option value="nb">Norsk</option></select></div>
+      <div><label data-t>Admin password (empty = open)</label><input id="admin-password" type="password" autocomplete="new-password"></div>
+    </div>
+    <div class="row">
+      <div><label data-t>Bridge address as seen from the screens</label><input id="public-url" placeholder="auto"></div>
+      <div><label data-t>Access</label><label class="checks" style="margin-top:6px"><span style="display:inline-flex;align-items:center;gap:6px"><input type="checkbox" id="sec-token"><span data-t>Require access key</span></span></label></div>
+    </div>
+    <p class="help" data-t>With access keys on, the panel, its files, the state and the WebSocket all need a screen's key (GUID): browsers open the link from <em>Screens → Copy link</em> once (kept in a cookie); Crestron screens get it baked in when published. An admin password is then required.</p>
+    <p class="help" id="public-url-help"></p>
+  </section>
+
+  <section class="wide">
+    <h2><span data-t>Source groups</span> <small data-t>“Only one at a time”: picking Music 2 switches Music 1 off in the same zone · “Toggle together”: one button per zone for the whole group</small></h2>
+    <table id="source-groups">
+      <thead><tr><th data-t>Name</th><th data-t>Behaviour</th><th data-t>Icon</th><th data-t>Sources</th><th>ID</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p><button type="button" id="add-source-group" data-t>+ Add source group</button></p>
+  </section>
+
+  <section class="wide">
+    <h2><span data-t>Screens and access</span> <small data-t>Crestron screens and browsers/phones – which zones and views each gets, and the key that grants access</small></h2>
+    <div class="screens" id="panels"></div>
+    <p style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <button type="button" id="add-panel" data-t>+ Add screen</button>
+      <span class="spacer" style="flex:1"></span>
+      <button type="button" class="primary" id="btn-publish" data-t data-t-title title="Builds a .ch5z per screen and uploads it to the screen (ch5-cli deploy)">Publish to all screens</button>
+    </p>
+    <p class="help" data-t><strong>Scale</strong> magnifies the whole panel on a Crestron screen (1.3 makes the buttons finger-friendly on a 7″ TS-770; 1.0–1.2 on a 10″ TSW-1070). Applied when publishing. A “screen” is also an access: add a row without an IP for browsers/phones and share the link (👁 / <em>Copy link</em>). <em>New key</em> locks out everyone using the old one – publish to the Crestron screen again afterwards.</p>
+    <p class="help" data-t>Publishing uses the <strong>saved</strong> configuration – save first. The screen only needs network access to the bridge (no Crestron processor). The first publish fetches Crestron's <code>ch5-cli</code> via npm on the bridge host. If direct upload (SFTP to the screen) is not possible, download the .ch5z and load it with Crestron Toolbox.</p>
+    <pre id="publish-log" class="ref" hidden style="max-height:260px;overflow:auto;background:#041721;border:1px solid var(--line);border-radius:8px;padding:10px;margin:8px 0 0;white-space:pre-wrap"></pre>
+  </section>
+
+  <section class="wide">
+    <h2><span data-t>Appearance</span> <small data-t>logo, background and colours – applies to all screens and browsers</small></h2>
+    <div class="theme">
+      <div>
+        <div class="asset">
+          <div class="thumb" id="logo-thumb"></div>
+          <div>
+            <label><span data-t>Logo</span> <span class="help" style="display:inline" data-t>(PNG/SVG with a transparent background)</span></label>
+            <div class="btns"><button type="button" id="logo-upload" data-t>Upload …</button><button type="button" id="logo-reset" data-t>Default</button><button type="button" id="logo-none" data-t>No logo</button></div>
+            <input type="file" id="logo-file" accept="image/png,image/jpeg,image/svg+xml,image/webp" hidden>
+          </div>
+        </div>
+        <div class="row"><div><label data-t>Logo height (px)</label><input id="theme-logo-height" type="number" min="24" max="140"></div></div>
+        <div class="asset">
+          <div class="thumb cover" id="bg-thumb"></div>
+          <div>
+            <label><span data-t>Background image</span> <span class="help" style="display:inline" data-t>(JPEG, ideally ≥ 1920 px wide)</span></label>
+            <div class="btns"><button type="button" id="bg-upload" data-t>Upload …</button><button type="button" id="bg-reset" data-t>Default</button><button type="button" id="bg-none" data-t>None (plain colour)</button></div>
+            <input type="file" id="bg-file" accept="image/png,image/jpeg,image/webp" hidden>
+          </div>
+        </div>
+        <label><span data-t>Background darkening</span> <span id="veil-val" class="ref"></span></label>
+        <input id="theme-veil" type="range" min="0" max="1.5" step="0.05">
+        <p class="help" style="margin-bottom:12px" data-t>0 = the image as it is, 1 = default, 1.5 = almost plain.</p>
+        <div class="row" style="align-items:end">
+          <div><label data-t>Colour theme (starting point)</label><select id="theme-preset"></select></div>
+          <div style="align-self:end"><button type="button" id="theme-reset-colors" data-t>Reset colours</button></div>
+        </div>
+        <div id="swatch-groups"></div>
+        <p class="help" data-t>Logo and background are saved as soon as you upload. Colours, height and darkening show <strong>live in the preview</strong> while you adjust, and are applied to every panel when you press <em>Save</em>.</p>
+      </div>
+      <div class="preview">
+        <div class="pv-head"><span data-t>Preview (saved configuration)</span><button type="button" class="icon" id="pv-reload" data-t-title title="Reload">↻</button></div>
+        <iframe id="pv" title="Panel preview"></iframe>
+      </div>
+    </div>
+  </section>
+
+  <section class="wide">
+    <h2><span data-t>Sources (DSP inputs)</span> <small data-t>the order here is the order on the panel</small></h2>
+    <table id="sources">
+      <thead><tr><th data-t>Name</th><th data-t>Input</th><th data-t>Icon</th><th data-t>Label (optional)</th><th>ID</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p><button type="button" id="add-source" data-t>+ Add source</button></p>
+  </section>
+
+  <section class="wide">
+    <h2 data-t>Zones (DSP outputs)</h2>
+    <table id="zones">
+      <thead><tr><th data-t>Name</th><th data-t>Output</th><th data-t>Icon</th><th data-t>Hint (optional)</th><th>ID</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p><button type="button" id="add-zone" data-t>+ Add zone</button></p>
+  </section>
+
+  <section class="wide">
+    <h2><span data-t>Zone groups</span> <small data-t>several zones controlled together; users can also make their own on the panel</small></h2>
+    <table id="groups">
+      <thead><tr><th data-t>Name</th><th data-t>Zones</th><th>ID</th><th></th></tr></thead>
+      <tbody></tbody>
+    </table>
+    <p><button type="button" id="add-group" data-t>+ Add zone group</button></p>
+  </section>
+
+  <section class="wide">
+    <h2><span data-t>Derived joins and OIDs</span> <small data-t>for reference – updated after saving</small></h2>
+    <table id="joins"><thead><tr><th data-t>Type</th><th data-t>Name</th><th data-t>In/out</th><th>Joins</th><th data-t>Control</th></tr></thead><tbody></tbody></table>
+  </section>
+</main>
+
+<div class="bar">
+  <span class="msg" id="msg" data-t>Loading …</span>
+  <button type="button" id="btn-reload" data-t>Discard changes</button>
+  <button type="button" class="primary" id="btn-save" data-t>Save and apply</button>
+</div>
+
+<script>
+(function () {
+  "use strict";
+  /* ---------- admin language: English is the source text; NB translates it. Stored per browser. ---------- */
+  const NB = {
+    "DSP Panel – administration": "DSP Panel – administrasjon", "Open the panel": "Åpne panelet",
+    "Download configuration": "Last ned konfigurasjon", "Backup of the whole configuration (site.json)": "Sikkerhetskopi av hele oppsettet (site.json)",
+    "Upload configuration": "Last opp konfigurasjon", "Restore the configuration from a downloaded site.json": "Gjenopprett oppsettet fra en nedlastet site.json",
+    "DSP connection": "DSP-tilkobling", "IP address": "IP-adresse", "Port": "Port", "Password (empty = none)": "Passord (tomt = ingen)",
+    "Keepalive (ms)": "Keepalive (ms)", "Silence timeout (ms)": "Stillhets-timeout (ms)", "Reconnect (ms)": "Reconnect (ms)",
+    "Gap between commands (ms)": "Pause mellom kommandoer (ms)", "Max wait for a reply (ms)": "Vent på svar maks (ms)",
+    "The bridge sends one command at a time and waits for the DSP's reply before the next. Increase the gap if the DMP drops the link at start-up; 75 objects are read in about 75 × gap.": "Broen sender én kommando om gangen og venter på svar fra DSP-en før neste. Øk pausen hvis DMP-en mister forbindelsen ved oppstart; 75 objekter leses på ca. 75 × pause.",
+    "Reconnect": "Koble til på nytt", "Control": "Styring", "Mode": "Modus", "Direct (blocks / OID)": "Direkte (blokker/OID)", "DMP groups": "DMP-grupper",
+    "Input level block": "Inngangsnivå-blokk", "Input mute block": "Inngangsmute-blokk", "Zone block (output)": "Sone-blokk (utgang)",
+    "Direct: input <em>n</em> → level <code>401(n−1)</code>, mute <code>400(n−1)</code>; zone with output <em>o</em> → <code>600(o−1)</code>. Groups: input n → gain group n / mute group 10+n, zone o → 20+o / 25+o.": "Direkte: inngang <em>n</em> → nivå <code>401(n−1)</code>, mute <code>400(n−1)</code>; sone med utgang <em>o</em> → <code>600(o−1)</code>. Grupper: inngang n → gain-gruppe n / mute-gruppe 10+n, sone o → 20+o / 25+o.",
+    "Fader ranges": "Fader-områder", "Inputs min": "Innganger min", "Inputs max": "Innganger maks", "Zones min": "Soner min", "Zones max": "Soner maks",
+    "Site and panel": "Sted og panel", "Name": "Navn", "Area": "Område", "Volume step −/+ (%)": "Volumsteg −/+ (%)", "Panel language": "Språk på panelet",
+    "Admin password (empty = open)": "Admin-passord (tomt = åpent)", "Bridge address as seen from the screens": "Broens adresse sett fra skjermene", "Access": "Tilgang", "Require access key": "Krev tilgangsnøkkel",
+    "With access keys on, the panel, its files, the state and the WebSocket all need a screen's key (GUID): browsers open the link from <em>Screens → Copy link</em> once (kept in a cookie); Crestron screens get it baked in when published. An admin password is then required.": "Med tilgangsnøkkel på må panelet, filene, tilstanden og WebSocket-en ha en skjerms nøkkel (GUID): nettlesere åpner lenken fra <em>Skjermer → Kopier lenke</em> én gang (huskes i en cookie), Crestron-skjermene får den bakt inn ved publisering. Admin-passord er da påkrevd.",
+    "Source groups": "Kildegrupper",
+    "“Only one at a time”: picking Music 2 switches Music 1 off in the same zone · “Toggle together”: one button per zone for the whole group": "«Kun én om gangen»: velges Musikk 2 slås Musikk 1 av i samme sone · «Slå av/på samlet»: én knapp i hver sone for hele gruppen",
+    "Behaviour": "Oppførsel", "Icon": "Ikon", "Sources": "Kilder", "+ Add source group": "+ Legg til kildegruppe",
+    "Screens and access": "Skjermer og tilganger", "Crestron screens and browsers/phones – which zones and views each gets, and the key that grants access": "Crestron-skjermer og nettleser/mobil – hvilke soner og visninger hver får, og nøkkelen som gir tilgang",
+    "+ Add screen": "+ Legg til skjerm", "Publish to all screens": "Publiser til alle skjermer", "Builds a .ch5z per screen and uploads it to the screen (ch5-cli deploy)": "Bygger en .ch5z per skjerm og laster den opp til skjermen (ch5-cli deploy)",
+    "<strong>Scale</strong> magnifies the whole panel on a Crestron screen (1.3 makes the buttons finger-friendly on a 7″ TS-770; 1.0–1.2 on a 10″ TSW-1070). Applied when publishing. A “screen” is also an access: add a row without an IP for browsers/phones and share the link (👁 / <em>Copy link</em>). <em>New key</em> locks out everyone using the old one – publish to the Crestron screen again afterwards.": "<strong>Skala</strong> forstørrer hele panelet på en Crestron-skjerm (1.3 gjør knappene fingervennlige på en 7″ TS-770; 1.0–1.2 på 10″ TSW-1070). Gjelder ved publisering. En «skjerm» er også en tilgang: lag en rad uten IP for nettlesere/mobil og del lenken (👁 / <em>Kopier lenke</em>). <em>Ny nøkkel</em> stenger alle som bruker den gamle – publiser til Crestron-skjermen på nytt etterpå.",
+    "Publishing uses the <strong>saved</strong> configuration – save first. The screen only needs network access to the bridge (no Crestron processor). The first publish fetches Crestron's <code>ch5-cli</code> via npm on the bridge host. If direct upload (SFTP to the screen) is not possible, download the .ch5z and load it with Crestron Toolbox.": "Publisering bruker <strong>lagret</strong> oppsett – lagre først. Skjermen trenger kun nettverk til broen (ingen Crestron-prosessor). Første publisering henter Crestrons <code>ch5-cli</code> via npm på bro-maskinen. Går ikke direkte opplasting (SFTP til skjermen) kan du laste ned .ch5z og legge den inn med Crestron Toolbox.",
+    "Appearance": "Utseende", "logo, background and colours – applies to all screens and browsers": "logo, bakgrunn og farger – gjelder alle skjermer og nettlesere",
+    "Logo": "Logo", "(PNG/SVG with a transparent background)": "(PNG/SVG med gjennomsiktig bakgrunn)", "Upload …": "Last opp …", "Default": "Standard", "No logo": "Ingen logo",
+    "Logo height (px)": "Logohøyde (px)", "Background image": "Bakgrunnsbilde", "(JPEG, ideally ≥ 1920 px wide)": "(JPEG, gjerne ≥ 1920 px bredt)", "None (plain colour)": "Ingen (ensfarget)",
+    "Background darkening": "Mørklegging av bakgrunn", "0 = the image as it is, 1 = default, 1.5 = almost plain.": "0 = bildet som det er, 1 = standard, 1.5 = nesten ensfarget.",
+    "Colour theme (starting point)": "Fargetema (utgangspunkt)", "Reset colours": "Tilbakestill farger",
+    "Logo and background are saved as soon as you upload. Colours, height and darkening show <strong>live in the preview</strong> while you adjust, and are applied to every panel when you press <em>Save</em>.": "Logo og bakgrunn lagres med én gang du laster opp. Farger, høyde og mørklegging vises <strong>direkte i forhåndsvisningen</strong> mens du justerer, og tas i bruk på alle paneler når du trykker <em>Lagre</em>.",
+    "Preview (saved configuration)": "Forhåndsvisning (lagret oppsett)", "Reload": "Last på nytt",
+    "Sources (DSP inputs)": "Kilder (DSP-innganger)", "the order here is the order on the panel": "rekkefølgen her er rekkefølgen på panelet", "Input": "Inngang", "Label (optional)": "Etikett (valgfri)", "+ Add source": "+ Legg til kilde",
+    "Zones (DSP outputs)": "Soner (DSP-utganger)", "Output": "Utgang", "Hint (optional)": "Hjelpetekst (valgfri)", "+ Add zone": "+ Legg til sone",
+    "Zone groups": "Grupper", "several zones controlled together; users can also make their own on the panel": "flere soner styrt samlet; brukere kan også lage egne på panelet", "Zones": "Soner", "+ Add zone group": "+ Legg til gruppe",
+    "Derived joins and OIDs": "Avledede joins og OID-er", "for reference – updated after saving": "til referanse – oppdateres etter lagring", "Type": "Type", "In/out": "Inn/ut",
+    "Loading …": "Laster …", "Discard changes": "Forkast endringer", "Save and apply": "Lagre og ta i bruk",
+    // dynamic
+    "Move up": "Flytt opp", "Move down": "Flytt ned", "Remove": "Fjern", "e.g. Equipment": "f.eks. Utstyr", "All zones": "Alle soner", "All": "Alle",
+    "Only one at a time": "Kun én om gangen", "Toggle together (own button)": "Slå av/på samlet (egen knapp)",
+    "Mixer": "Mikser", "empty = browser only": "tom = kun nettleser", "the screen's password": "skjermens passord",
+    "Magnification of the whole panel on this screen (1 = normal, 1.3 suits a 7″ TS-770)": "Forstørrelse av hele panelet på denne skjermen (1 = normal, 1.3 passer TS-770 7″)",
+    "As the panel": "Som panelet", "IP address (Crestron screen)": "IP-adresse (Crestron-skjerm)", "User": "Bruker", "Password": "Passord", "Scale": "Skala", "Language": "Språk",
+    "Zones shown": "Soner som vises", "Views": "Visninger", "key %s": "nøkkel %s", "key is created when saving": "nøkkel lages ved lagring",
+    "Copy link": "Kopier lenke", "Copy the panel link with this screen's key": "Kopier panel-lenken med nøkkel for denne skjermen", "Link copied: %s": "Lenke kopiert: %s", "Copy the link:": "Kopier lenken:",
+    "New key": "Ny nøkkel", "Make a new key (the old link stops working when you save)": "Lag ny nøkkel (gammel lenke slutter å virke når du lagrer)",
+    "New key for “%s”? Everyone using today's link loses access when you save, and the Crestron screen must be published again.": "Ny nøkkel for «%s»? Alle som bruker dagens lenke mister tilgang når du lagrer, og Crestron-skjermen må publiseres på nytt.",
+    "👁 Open": "👁 Åpne", "Open the panel as this screen sees it (saved configuration)": "Åpne panelet slik denne skjermen ser det (lagret oppsett)",
+    "Download the .ch5z for this screen (saved configuration)": "Last ned .ch5z for denne skjermen (lagret oppsett)",
+    "⇪ Publish": "⇪ Publiser", "Publish to this screen only (saved configuration)": "Publiser bare til denne skjermen (lagret oppsett)",
+    "No screens registered.": "Ingen skjermer registrert.", " – no IP": " – mangler IP",
+    "Publish the saved configuration to:\n• %s\n\nThe screens reload the project afterwards.": "Publisere lagret oppsett til:\n• %s\n\nSkjermene laster prosjektet på nytt etterpå.",
+    "Publishing did not start: %s": "Publisering startet ikke: %s", "Publishing … (may take a couple of minutes per screen)": "Publiserer … (kan ta et par minutter per skjerm)",
+    "Publishing finished with errors:\n• %s": "Publisering ferdig med feil:\n• %s", "Published to %s.": "Publisert til %s.",
+    "in %s": "inn %s", "out %s": "ut %s",
+    "Surfaces": "Flater", "Background": "Bakgrunn", "Darkest surface – behind everything": "Mørkeste flate – bak alt", "Page": "Side", "Cards and buttons": "Kort og knapper", "Border / hover": "Ramme / hover", "Pressed": "Trykket",
+    "Accent": "Aksent", "Selected source, faders, active tab": "Valgt kilde, fadere, aktiv fane", "Accent light": "Aksent lys", "Zone on": "Sone på", "The on/off button when the zone has sound": "Av/på-knappen når sonen har lyd", "Zone on, light": "Sone på, lys",
+    "Text and status": "Tekst og status", "Text": "Tekst", "Text dimmed": "Tekst dempet", "Text faint": "Tekst svak", "OK / connected": "OK / tilkoblet", "Error / disconnected": "Feil / frakoblet",
+    "Standard (navy / teal)": "Standard (marineblå / teal)", "Graphite / orange": "Grafitt / oransje", "Forest / green": "Skog / grønn", "Light": "Lys", "Custom": "Egendefinert",
+    "no logo": "ingen logo", "plain": "ensfarget", "Uploading %s …": "Laster opp %s …", "logo": "logo", "background": "bakgrunn", "Upload failed: %s": "Opplasting feilet: %s",
+    "Logo updated – panels reload.": "Logo oppdatert – panelene laster på nytt.", "Background updated – panels reload.": "Bakgrunn oppdatert – panelene laster på nytt.", "Error: %s": "Feil: %s", "Updated.": "Oppdatert.",
+    "DSP connected": "DSP tilkoblet", "DSP no contact": "DSP ingen kontakt", "Could not load the configuration (%s)": "Kunne ikke laste konfigurasjon (%s)",
+    "Built into the screens' config.js (WebSocket %s/ws). Empty = this machine's LAN address (%s). Set it explicitly if the bridge has several networks or a DNS name.": "Bygges inn i skjermenes config.js (WebSocket %s/ws). Tomt = denne maskinens LAN-adresse (%s). Sett den fast hvis broen har flere nettverk eller et DNS-navn.",
+    " ch5-cli is not installed in bridge/node_modules – the first publish fetches it via npx.": " ch5-cli er ikke installert i bridge/node_modules – første publisering henter den via npx.",
+    "Ready. Changes take effect when you save – the panels reload by themselves.": "Klar. Endringer tas i bruk når du lagrer – panelene laster seg selv på nytt.",
+    "Saving …": "Lagrer …", "Not saved:\n• %s": "Ikke lagret:\n• %s", "Saved and applied. The panels reload.": "Lagret og tatt i bruk. Panelene laster på nytt.",
+    "The file is not valid JSON.": "Filen er ikke gyldig JSON.", "Replace the whole configuration with “%s” (%s sources, %s zones)? The panels reload.": "Erstatte hele oppsettet med «%s» (%s kilder, %s soner)? Panelene laster på nytt.",
+    "Uploading …": "Laster opp …", "Not applied:\n• %s": "Ikke tatt i bruk:\n• %s", "Configuration from “%s” applied.": "Konfigurasjon fra «%s» tatt i bruk.", "Reconnecting to the DSP …": "Kobler til DSP på nytt …",
+    "Zone": "Sone", "New source": "Ny kilde", "New zone": "Ny sone", "New group": "Ny gruppe", "New source group": "Ny kildegruppe", "New screen": "Ny skjerm",
+  };
+  const LS_LANG = "dsp-panel.admin.lang";
+  let adminLang = "en"; try { adminLang = localStorage.getItem(LS_LANG) || "en"; } catch (_) {}
+  if (adminLang !== "nb") adminLang = "en";
+  const T = (s, ...args) => { let out = adminLang === "nb" && NB[s] != null ? NB[s] : s; args.forEach(a => { out = out.replace("%s", String(a)); }); return out; };
+  if (adminLang === "nb") {
+    document.documentElement.lang = "nb";
+    document.querySelectorAll("[data-t]").forEach(n => { const k = n.innerHTML.trim(); if (NB[k] != null) n.innerHTML = NB[k]; });
+    document.querySelectorAll("[data-t-title]").forEach(n => { const k = n.getAttribute("title"); if (NB[k] != null) n.setAttribute("title", NB[k]); });
+  }
+  document.querySelector("#admin-lang").value = adminLang;
+  document.querySelector("#admin-lang").onchange = e => { try { localStorage.setItem(LS_LANG, e.target.value); } catch (_) {} location.reload(); };
+
+  const ICONS = ["mic", "music", "radio", "screen", "xlr", "speaker", "restaurant", "reception", "meeting", "office", "send", "home", "group"];
+  const $ = s => document.querySelector(s);
+  let site = null;
+
+  const slug = s => (s || "").toLowerCase().normalize("NFD").replace(/[̀-ͯ]/g, "").replace(/ø/g, "o").replace(/æ/g, "ae").replace(/å/g, "a").replace(/[^a-z0-9]+/g, "-").replace(/^-+|-+$/g, "").slice(0, 24) || "x";
+  const uniq = (base, taken) => { let id = base, n = 2; while (taken.has(id)) id = base + n++; return id; };
+
+  function iconSelect(value) {
+    const sel = document.createElement("select");
+    ICONS.forEach(i => { const o = document.createElement("option"); o.value = i; o.textContent = i; if (i === value) o.selected = true; sel.append(o); });
+    return sel;
+  }
+  function cell(child, cls) { const td = document.createElement("td"); if (cls) td.className = cls; td.append(child); return td; }
+  function text(value, attrs = {}) { const i = document.createElement("input"); i.value = value == null ? "" : value; Object.assign(i, attrs); return i; }
+  function btn(props) { return Object.assign(document.createElement("button"), Object.assign({ type: "button" }, props)); }
+  function tools(list, idx, rerender) {
+    const d = document.createElement("div"); d.className = "tools";
+    const up = btn({ className: "icon", textContent: "↑", title: T("Move up"), disabled: idx === 0 });
+    const dn = btn({ className: "icon", textContent: "↓", title: T("Move down"), disabled: idx === list.length - 1 });
+    const rm = btn({ className: "icon danger", textContent: "✕", title: T("Remove") });
+    up.onclick = () => { [list[idx - 1], list[idx]] = [list[idx], list[idx - 1]]; rerender(); };
+    dn.onclick = () => { [list[idx + 1], list[idx]] = [list[idx], list[idx + 1]]; rerender(); };
+    rm.onclick = () => { list.splice(idx, 1); rerender(); };
+    d.append(up, dn, rm); return d;
+  }
+  function checkRow() { const box = document.createElement("div"); box.className = "checks"; return box; }
+  function check(box, label, checked, disabled, onchange) { const l = document.createElement("label"); const cb = Object.assign(document.createElement("input"), { type: "checkbox", checked, disabled }); cb.onchange = () => onchange(cb.checked); l.append(cb, label); box.append(l); return cb; }
+
+  function renderSources() {
+    const tb = $("#sources tbody"); tb.replaceChildren();
+    site.sources.forEach((s, i) => {
+      const tr = document.createElement("tr");
+      const name = text(s.name); name.oninput = () => { s.name = name.value; };
+      const inp = text(s.input, { type: "number", min: 1, max: 99 }); inp.oninput = () => { s.input = Number(inp.value); };
+      const icon = iconSelect(s.icon || "music"); icon.onchange = () => { s.icon = icon.value; };
+      const grp = text(s.group || "", { placeholder: T("e.g. Equipment") }); grp.oninput = () => { s.group = grp.value; };
+      const id = text(s.id); id.className = "ref"; id.oninput = () => { s.id = id.value; };
+      tr.append(cell(name), cell(inp, "num"), cell(icon), cell(grp), cell(id), cell(tools(site.sources, i, () => { renderSources(); renderSourceGroups(); })));
+      tb.append(tr);
+    });
+  }
+  function renderZones() {
+    const tb = $("#zones tbody"); tb.replaceChildren();
+    site.zones.forEach((z, i) => {
+      const tr = document.createElement("tr");
+      const name = text(z.name); name.oninput = () => { z.name = name.value; };
+      const out = text(z.output, { type: "number", min: 1, max: 99 }); out.oninput = () => { z.output = Number(out.value); };
+      const icon = iconSelect(z.icon || "speaker"); icon.onchange = () => { z.icon = icon.value; };
+      const hint = text(z.hint || ""); hint.oninput = () => { z.hint = hint.value; };
+      const id = text(z.id); id.className = "ref"; id.oninput = () => { z.id = id.value; renderGroups(); renderPanels(); };
+      tr.append(cell(name), cell(out, "num"), cell(icon), cell(hint), cell(id), cell(tools(site.zones, i, () => { renderZones(); renderGroups(); renderPanels(); })));
+      tb.append(tr);
+    });
+  }
+  /* checkbox list of zones for an object with .zones = "*" | [ids] */
+  function zonePicker(obj, rerender, allLabel) {
+    const box = checkRow();
+    check(box, allLabel, obj.zones === "*", false, on => { obj.zones = on ? "*" : site.zones.map(z => z.id); rerender(); });
+    site.zones.forEach(z => check(box, z.name || z.id, obj.zones === "*" || (Array.isArray(obj.zones) && obj.zones.includes(z.id)), obj.zones === "*",
+      on => { obj.zones = site.zones.filter(zz => zz === z ? on : obj.zones.includes(zz.id)).map(zz => zz.id); }));
+    return box;
+  }
+  function renderGroups() {
+    const tb = $("#groups tbody"); tb.replaceChildren();
+    (site.groups = site.groups || []).forEach((g, i) => {
+      const tr = document.createElement("tr");
+      const name = text(g.name); name.oninput = () => { g.name = name.value; };
+      const id = text(g.id); id.className = "ref"; id.oninput = () => { g.id = id.value; };
+      tr.append(cell(name), cell(zonePicker(g, renderGroups, T("All zones"))), cell(id), cell(tools(site.groups, i, renderGroups)));
+      tb.append(tr);
+    });
+  }
+  function renderSourceGroups() {
+    const tb = $("#source-groups tbody"); tb.replaceChildren();
+    (site.sourceGroups = site.sourceGroups || []).forEach((g, i) => {
+      const tr = document.createElement("tr");
+      const name = text(g.name); name.oninput = () => { g.name = name.value; };
+      const icon = iconSelect(g.icon || "group"); icon.onchange = () => { g.icon = icon.value; };
+      const mode = document.createElement("select");
+      [["exclusive", T("Only one at a time")], ["toggle", T("Toggle together (own button)")]].forEach(([v, l]) => { const o = document.createElement("option"); o.value = v; o.textContent = l; if ((g.mode || "toggle") === v) o.selected = true; mode.append(o); });
+      mode.onchange = () => { g.mode = mode.value; };
+      const box = checkRow();
+      site.sources.forEach(s => check(box, s.name || s.id, (g.sources || []).includes(s.id), false, on => { g.sources = site.sources.filter(ss => ss === s ? on : (g.sources || []).includes(ss.id)).map(ss => ss.id); }));
+      const id = text(g.id); id.className = "ref"; id.oninput = () => { g.id = id.value; };
+      tr.append(cell(name), cell(mode), cell(icon), cell(box), cell(id), cell(tools(site.sourceGroups, i, renderSourceGroups)));
+      tb.append(tr);
+    });
+  }
+  const VIEWS = [["zones", T("Zones")], ["mixer", T("Mixer")]];
+  let publicUrl = "";
+  const panelLink = p => (publicUrl || location.origin) + "/?token=" + encodeURIComponent(p.token);
+  const uuid = () => { const b = crypto.getRandomValues(new Uint8Array(16)); b[6] = (b[6] & 0x0f) | 0x40; b[8] = (b[8] & 0x3f) | 0x80; const h = [...b].map(x => x.toString(16).padStart(2, "0")).join(""); return `${h.slice(0, 8)}-${h.slice(8, 12)}-${h.slice(12, 16)}-${h.slice(16, 20)}-${h.slice(20)}`; };
+  function renderPanels() {
+    const box = $("#panels"); box.replaceChildren();
+    (site.panels = site.panels || []).forEach((p, i) => {
+      const card = document.createElement("article"); card.className = "screen";
+      const field = (label, input) => { const d = document.createElement("div"); const l = document.createElement("label"); l.textContent = label; d.append(l, input); return d; };
+      const name = text(p.name); name.oninput = () => { p.name = name.value; };
+      const host = text(p.host || "", { placeholder: T("empty = browser only") }); host.oninput = () => { p.host = host.value.trim(); };
+      const user = text(p.user || "admin"); user.oninput = () => { p.user = user.value.trim(); };
+      const pw = text(p.password || "", { type: "password", autocomplete: "new-password", placeholder: T("the screen's password") }); pw.oninput = () => { p.password = pw.value; };
+      const id = text(p.id); id.className = "ref"; id.oninput = () => { p.id = id.value; };
+      const sc = text(p.scale || 1, { type: "number", min: 1, max: 2.5, step: 0.1, title: T("Magnification of the whole panel on this screen (1 = normal, 1.3 suits a 7″ TS-770)") }); sc.oninput = () => { p.scale = Number(sc.value) || 1; };
+      const lang = document.createElement("select"); [["", T("As the panel")], ["en", "English"], ["nb", "Norsk"]].forEach(([v, l]) => { const o = document.createElement("option"); o.value = v; o.textContent = l; if ((p.lang || "") === v) o.selected = true; lang.append(o); }); lang.onchange = () => { if (lang.value) p.lang = lang.value; else delete p.lang; };
+      const fields = document.createElement("div"); fields.className = "fields";
+      fields.append(field(T("Name"), name), field(T("IP address (Crestron screen)"), host), field(T("User"), user), field(T("Password"), pw), field(T("Scale"), sc), field(T("Language"), lang), field("ID", id));
+
+      const picks = document.createElement("div"); picks.className = "picks";
+      const views = checkRow();
+      VIEWS.forEach(([vid, label]) => check(views, label, !p.views || p.views.includes(vid), false, on => { p.views = VIEWS.map(v => v[0]).filter(v => v === vid ? on : (!p.views || p.views.includes(v))); }));
+      picks.append(field(T("Zones shown"), zonePicker(p, renderPanels, T("All"))), field(T("Views"), views));
+
+      const foot = document.createElement("div"); foot.className = "foot";
+      const tok = document.createElement("span"); tok.className = "token"; tok.textContent = p.token ? T("key %s", p.token) : T("key is created when saving"); tok.title = p.token || "";
+      const copy = btn({ textContent: T("Copy link"), title: T("Copy the panel link with this screen's key"), disabled: !p.token });
+      copy.onclick = async () => { const link = panelLink(p); try { await navigator.clipboard.writeText(link); msg(T("Link copied: %s", link), "ok"); } catch (_) { window.prompt(T("Copy the link:"), link); } };
+      const rot = btn({ textContent: T("New key"), title: T("Make a new key (the old link stops working when you save)") });
+      rot.onclick = () => { if (window.confirm(T("New key for “%s”? Everyone using today's link loses access when you save, and the Crestron screen must be published again.", p.name))) { p.token = uuid(); renderPanels(); } };
+      const open = btn({ textContent: T("👁 Open"), title: T("Open the panel as this screen sees it (saved configuration)") }); open.onclick = () => window.open(p.token ? panelLink(p) : "/?panel=" + encodeURIComponent(p.id), "_blank");
+      const dl = btn({ textContent: "⬇ .ch5z", title: T("Download the .ch5z for this screen (saved configuration)") }); dl.onclick = () => { window.location.href = "/api/admin/panels/" + encodeURIComponent(p.id) + "/archive"; };
+      const pub = btn({ textContent: T("⇪ Publish"), title: T("Publish to this screen only (saved configuration)"), disabled: !p.host }); pub.onclick = () => publish([p.id]);
+      const sp = document.createElement("span"); sp.className = "spacer";
+      foot.append(tok, copy, rot, sp, open, dl, pub, tools(site.panels, i, renderPanels));
+      card.append(fields, picks, foot);
+      box.append(card);
+    });
+  }
+  async function publish(ids) {
+    if (!site.panels.length) { msg(T("No screens registered."), "err"); return; }
+    const names = site.panels.filter(p => !ids || ids.includes(p.id)).map(p => p.name + (p.host ? " (" + p.host + ")" : T(" – no IP")));
+    if (!window.confirm(T("Publish the saved configuration to:\n• %s\n\nThe screens reload the project afterwards.", names.join("\n• ")))) return;
+    const r = await fetch("/api/admin/publish", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ ids: ids || [] }) });
+    const d = await r.json();
+    if (!r.ok || !d.ok) { msg(T("Publishing did not start: %s", d.error || r.status), "err"); return; }
+    msg(T("Publishing … (may take a couple of minutes per screen)")); $("#publish-log").hidden = false; $("#btn-publish").disabled = true;
+    pollPublish();
+  }
+  let pollTimer = null;
+  async function pollPublish() {
+    clearTimeout(pollTimer);
+    try {
+      const d = await (await fetch("/api/admin/publish/status")).json();
+      const el = $("#publish-log"); el.hidden = !d.log.length; el.textContent = d.log.join("\n"); el.scrollTop = el.scrollHeight;
+      $("#btn-publish").disabled = d.running;
+      if (d.running) { pollTimer = setTimeout(pollPublish, 1500); return; }
+      if (d.results.length) { const bad = d.results.filter(r => !r.ok); msg(bad.length ? T("Publishing finished with errors:\n• %s", bad.map(r => r.name + ": " + r.error).join("\n• ")) : T("Published to %s.", d.results.map(r => r.name).join(", ")), bad.length ? "err" : "ok"); }
+    } catch (_) { pollTimer = setTimeout(pollPublish, 3000); }
+  }
+  function renderJoins(rows) {
+    const tb = $("#joins tbody"); tb.replaceChildren();
+    rows.forEach(r => { const tr = document.createElement("tr"); [T(r.kind), r.name, r.input != null ? T("in %s", r.input) : T("out %s", r.output), r.joins, r.control].forEach(v => { const td = document.createElement("td"); td.textContent = v; if (v === r.joins || v === r.control) td.className = "ref"; tr.append(td); }); tb.append(tr); });
+  }
+
+  /* every colour the panel uses: [key, label, default, hint] grouped as shown */
+  const COLOR_GROUPS = [
+    [T("Surfaces"), [["bg0", T("Background"), "#041721", T("Darkest surface – behind everything")], ["bg1", T("Page"), "#062330"], ["bg2", T("Cards and buttons"), "#0b3142"], ["bg3", T("Border / hover"), "#124256"], ["bg4", T("Pressed"), "#1a556c"]]],
+    [T("Accent"), [["accent", T("Accent"), "#2689a8", T("Selected source, faders, active tab")], ["accentHi", T("Accent light"), "#4fb6d4"], ["active", T("Zone on"), "#f2b24a", T("The on/off button when the zone has sound")], ["activeHi", T("Zone on, light"), "#ffd27a"]]],
+    [T("Text and status"), [["text", T("Text"), "#eef6f9"], ["textDim", T("Text dimmed"), "#a9c3cf"], ["textFaint", T("Text faint"), "#6f8f9d"], ["ok", T("OK / connected"), "#58d48f"], ["down", T("Error / disconnected"), "#ef6b5b"]]],
+  ];
+  const DEFAULT_COLORS = Object.fromEntries(COLOR_GROUPS.flatMap(([, defs]) => defs.map(([k, , v]) => [k, v])));
+  const PRESETS = {
+    standard: [T("Standard (navy / teal)"), DEFAULT_COLORS],
+    graphite: [T("Graphite / orange"), { bg0: "#0f1113", bg1: "#16181b", bg2: "#1f2226", bg3: "#2a2e33", bg4: "#363b41", accent: "#e8762c", accentHi: "#ff9a4d", active: "#f5c542", activeHi: "#ffe08a", text: "#f2f2f2", textDim: "#b8bcc2", textFaint: "#7d838b", ok: "#5ad186", down: "#ef6b5b" }],
+    forest:   [T("Forest / green"), { bg0: "#0a1a14", bg1: "#0e231b", bg2: "#143126", bg3: "#1c4132", bg4: "#25523f", accent: "#3fa978", accentHi: "#6fd4a4", active: "#e9c46a", activeHi: "#ffe0a0", text: "#eef7f2", textDim: "#a9c9b9", textFaint: "#6f8f80", ok: "#58d48f", down: "#ef6b5b" }],
+    light:    [T("Light"), { bg0: "#dfe6ea", bg1: "#eef2f4", bg2: "#ffffff", bg3: "#d6dfe4", bg4: "#c3cfd6", accent: "#1f7a99", accentHi: "#2b9bc2", active: "#e39b1e", activeHi: "#f6b949", text: "#13232b", textDim: "#4c5f69", textFaint: "#7d8d95", ok: "#2f9e5a", down: "#d64c3d" }],
+  };
+  (function buildSwatches() {
+    const host = $("#swatch-groups");
+    COLOR_GROUPS.forEach(([title, defs]) => {
+      const l = document.createElement("label"); l.textContent = title; l.style.marginTop = "10px";
+      const grid = document.createElement("div"); grid.className = "swatches";
+      defs.forEach(([k, label, , hint]) => { const d = document.createElement("div"); d.className = "swatch"; d.title = hint || label; const inp = document.createElement("input"); inp.type = "color"; inp.id = "col-" + k; inp.addEventListener("input", pushPreview); const lab = document.createElement("label"); lab.htmlFor = inp.id; lab.textContent = label; d.append(inp, lab); grid.append(d); });
+      host.append(l, grid);
+    });
+    const sel = $("#theme-preset"); Object.entries(PRESETS).forEach(([id, [name]]) => { const o = document.createElement("option"); o.value = id; o.textContent = name; sel.append(o); });
+    const custom = document.createElement("option"); custom.value = ""; custom.textContent = T("Custom"); sel.prepend(custom);
+    sel.onchange = () => { const p = PRESETS[sel.value]; if (!p) return; for (const k of Object.keys(DEFAULT_COLORS)) $("#col-" + k).value = p[1][k]; pushPreview(); };
+  })();
+  /* send the theme as it is being edited to the preview iframe (same origin, no save needed) */
+  function currentTheme() { const t = Object.assign({}, site.theme); t.logoHeight = Number($("#theme-logo-height").value) || 58; t.veil = Number($("#theme-veil").value); t.colors = {}; for (const k of Object.keys(DEFAULT_COLORS)) t.colors[k] = $("#col-" + k).value; return t; }
+  function pushPreview() { if (!site) return; const f = $("#pv"); try { f.contentWindow.postMessage({ t: "theme", theme: currentTheme() }, location.origin); } catch (_) {} const match = Object.entries(PRESETS).find(([, [, c]]) => Object.keys(DEFAULT_COLORS).every(k => c[k].toLowerCase() === $("#col-" + k).value.toLowerCase())); $("#theme-preset").value = match ? match[0] : ""; }
+  function themeAssets() {
+    const t = site.theme || {};
+    const lt = $("#logo-thumb"), bt = $("#bg-thumb");
+    lt.style.backgroundImage = t.logo === "none" ? "none" : `url("${t.logo ? "/" + t.logo : "/assets/logo.svg"}")`; lt.textContent = t.logo === "none" ? T("no logo") : "";
+    bt.style.backgroundImage = t.background === "none" ? "none" : `url("${t.background ? "/" + t.background : "/assets/bg.svg"}")`; bt.textContent = t.background === "none" ? T("plain") : "";
+  }
+  function fillTheme() {
+    const t = site.theme = Object.assign({ logo: "", logoHeight: 58, background: "", veil: 1 }, site.theme || {}); t.colors = Object.assign({}, DEFAULT_COLORS, t.colors || {});
+    $("#theme-logo-height").value = t.logoHeight; $("#theme-veil").value = t.veil; $("#veil-val").textContent = Number(t.veil).toFixed(2);
+    for (const k of Object.keys(DEFAULT_COLORS)) $("#col-" + k).value = t.colors[k];
+    themeAssets(); pushPreview();
+  }
+  function readTheme() {
+    const t = site.theme; t.logoHeight = Number($("#theme-logo-height").value) || 58; t.veil = Number($("#theme-veil").value);
+    for (const k of Object.keys(DEFAULT_COLORS)) t.colors[k] = $("#col-" + k).value;
+  }
+  function previewUrl() { const p = (site.panels || []).find(x => x.token); return p && (!site.security || site.security.requireToken !== false) ? "/?token=" + encodeURIComponent(p.token) : "/"; }
+  function reloadPreview() { const u = previewUrl(); $("#pv").src = u + (u.includes("?") ? "&" : "?") + "pv=" + Date.now(); }
+  async function uploadAsset(kind, file) {
+    msg(T("Uploading %s …", T(kind)));
+    const r = await fetch("/api/admin/theme/upload?kind=" + kind, { method: "POST", headers: { "content-type": file.type }, body: file });
+    const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.ok) { msg(T("Upload failed: %s", d.error || r.status), "err"); return; }
+    site.theme[kind] = d.path; themeAssets(); reloadPreview(); msg(T(kind === "logo" ? "Logo updated – panels reload." : "Background updated – panels reload."), "ok");
+  }
+  async function resetAsset(kind, none) {
+    const r = await fetch("/api/admin/theme/reset?kind=" + kind + (none ? "&none=1" : ""), { method: "POST" }); const d = await r.json().catch(() => ({}));
+    if (!r.ok || !d.ok) { msg(T("Error: %s", d.error || r.status), "err"); return; }
+    site.theme[kind] = d.path; themeAssets(); reloadPreview(); msg(T("Updated."), "ok");
+  }
+  $("#logo-upload").onclick = () => $("#logo-file").click(); $("#logo-file").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) uploadAsset("logo", f); };
+  $("#bg-upload").onclick = () => $("#bg-file").click(); $("#bg-file").onchange = e => { const f = e.target.files[0]; e.target.value = ""; if (f) uploadAsset("background", f); };
+  $("#logo-reset").onclick = () => resetAsset("logo", false); $("#logo-none").onclick = () => resetAsset("logo", true);
+  $("#bg-reset").onclick = () => resetAsset("background", false); $("#bg-none").onclick = () => resetAsset("background", true);
+  $("#theme-veil").oninput = e => { $("#veil-val").textContent = Number(e.target.value).toFixed(2); pushPreview(); };
+  $("#theme-logo-height").oninput = pushPreview;
+  $("#theme-reset-colors").onclick = () => { for (const k of Object.keys(DEFAULT_COLORS)) $("#col-" + k).value = DEFAULT_COLORS[k]; pushPreview(); };
+  $("#pv-reload").onclick = reloadPreview;
+  $("#pv").addEventListener("load", () => setTimeout(pushPreview, 150));   // re-apply unsaved edits after the preview reloads
+
+  function fillForm() {
+    $("#dsp-host").value = site.dsp.host; $("#dsp-port").value = site.dsp.port; $("#dsp-password").value = site.dsp.password || "";
+    $("#dsp-keepalive").value = site.dsp.keepAliveMs; $("#dsp-silence").value = site.dsp.silenceTimeoutMs; $("#dsp-reconnect").value = site.dsp.reconnectMs;
+    $("#dsp-gap").value = site.dsp.minGapMs != null ? site.dsp.minGapMs : 100; $("#dsp-reply").value = site.dsp.replyTimeoutMs != null ? site.dsp.replyTimeoutMs : 400;
+    $("#ctrl-mode").value = site.control.mode; $("#ctrl-level").value = site.control.inputLevelBlock; $("#ctrl-mute").value = site.control.inputMuteBlock; $("#ctrl-zone").value = site.control.zoneBlock;
+    $("#lv-in-min").value = site.levels.input.min; $("#lv-in-max").value = site.levels.input.max; $("#lv-zone-min").value = site.levels.zone.min; $("#lv-zone-max").value = site.levels.zone.max;
+    $("#site-name").value = site.site.name; $("#site-area").value = site.site.area; $("#ui-step").value = (site.ui || {}).volumeStepPercent || 5; $("#ui-lang").value = (site.ui || {}).lang || "en"; $("#admin-password").value = (site.admin || {}).password || "";
+    $("#public-url").value = site.publicUrl || ""; $("#sec-token").checked = !site.security || site.security.requireToken !== false;
+    fillTheme(); renderSources(); renderZones(); renderGroups(); renderSourceGroups(); renderPanels();
+  }
+  function readForm() {
+    site.dsp.host = $("#dsp-host").value.trim(); site.dsp.port = Number($("#dsp-port").value); site.dsp.password = $("#dsp-password").value;
+    site.dsp.keepAliveMs = Number($("#dsp-keepalive").value); site.dsp.silenceTimeoutMs = Number($("#dsp-silence").value); site.dsp.reconnectMs = Number($("#dsp-reconnect").value);
+    site.dsp.minGapMs = Number($("#dsp-gap").value); site.dsp.replyTimeoutMs = Number($("#dsp-reply").value);
+    site.control = { mode: $("#ctrl-mode").value, inputLevelBlock: $("#ctrl-level").value.trim(), inputMuteBlock: $("#ctrl-mute").value.trim(), zoneBlock: $("#ctrl-zone").value.trim() };
+    site.levels = { input: { min: Number($("#lv-in-min").value), max: Number($("#lv-in-max").value) }, zone: { min: Number($("#lv-zone-min").value), max: Number($("#lv-zone-max").value) } };
+    site.site = { name: $("#site-name").value.trim(), area: $("#site-area").value.trim() };
+    site.ui = Object.assign(site.ui || {}, { volumeStepPercent: Number($("#ui-step").value) || 5, lang: $("#ui-lang").value });
+    site.admin = { password: $("#admin-password").value };
+    readTheme(); site.publicUrl = $("#public-url").value.trim(); site.security = Object.assign(site.security || {}, { requireToken: $("#sec-token").checked });
+    (site.panels || []).forEach(p => { if (p.views && p.views.length === VIEWS.length) delete p.views; });
+  }
+
+  const msg = (t, cls) => { const m = $("#msg"); m.textContent = t; m.className = "msg " + (cls || ""); };
+  const setDsp = up => { const s = $("#dsp-status"); s.textContent = up ? T("DSP connected") : T("DSP no contact"); s.className = "status " + (up ? "ok" : "down"); };
+
+  async function load() {
+    const r = await fetch("/api/admin/config"); if (!r.ok) { msg(T("Could not load the configuration (%s)", r.status), "err"); return; }
+    const d = await r.json(); site = d.site; setDsp(d.dsp); fillForm(); renderJoins(d.joins || []); $("#main").hidden = false;
+    publicUrl = d.publicUrl; $("#public-url").placeholder = "auto: " + d.publicUrl;
+    $("#public-url-help").textContent = T("Built into the screens' config.js (WebSocket %s/ws). Empty = this machine's LAN address (%s). Set it explicitly if the bridge has several networks or a DNS name.", d.publicUrl.replace(/^http/, "ws"), d.lanAddress) + (d.ch5cli === "installed" ? "" : T(" ch5-cli is not installed in bridge/node_modules – the first publish fetches it via npx."));
+    pollPublish(); if (!$("#pv").getAttribute("src")) reloadPreview(); msg(T("Ready. Changes take effect when you save – the panels reload by themselves."));
+  }
+  async function save() {
+    readForm();
+    const taken = new Set();
+    for (const s of site.sources) { if (!s.id) s.id = uniq(slug(s.name), taken); taken.add(s.id); }
+    for (const z of site.zones)   { if (!z.id) z.id = uniq(slug(z.name), taken); taken.add(z.id); }
+    for (const g of site.groups)  { if (!g.id) g.id = uniq(slug(g.name), taken); taken.add(g.id); }
+    for (const g of site.sourceGroups || []) { if (!g.id) g.id = uniq(slug(g.name), taken); taken.add(g.id); }
+    for (const p of site.panels)  { if (!p.id) p.id = uniq(slug(p.name), taken); taken.add(p.id); }
+    $("#btn-save").disabled = true; msg(T("Saving …"));
+    try {
+      const r = await fetch("/api/admin/config", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify({ site }) });
+      const d = await r.json();
+      if (!r.ok || !d.ok) { msg(T("Not saved:\n• %s", (d.problems || [d.error || r.status]).join("\n• ")), "err"); }
+      else { await load(); renderJoins(d.joins || []); reloadPreview(); msg(T("Saved and applied. The panels reload."), "ok"); }
+    } catch (e) { msg(T("Error: %s", e.message), "err"); }
+    $("#btn-save").disabled = false;
+  }
+
+  $("#btn-save").onclick = save;
+  $("#btn-reload").onclick = () => load();
+  $("#btn-import").onclick = () => $("#import-file").click();
+  $("#import-file").onchange = async ev => {
+    const f = ev.target.files[0]; ev.target.value = ""; if (!f) return;
+    let data; try { data = JSON.parse(await f.text()); } catch (_) { msg(T("The file is not valid JSON."), "err"); return; }
+    const n = (data.sources || (data.site || {}).sources || []).length, z = (data.zones || (data.site || {}).zones || []).length;
+    if (!window.confirm(T("Replace the whole configuration with “%s” (%s sources, %s zones)? The panels reload.", f.name, n, z))) return;
+    msg(T("Uploading …"));
+    try {
+      const r = await fetch("/api/admin/import", { method: "POST", headers: { "content-type": "application/json" }, body: JSON.stringify(data) });
+      const d = await r.json();
+      if (!r.ok || !d.ok) msg(T("Not applied:\n• %s", (d.problems || [d.error || r.status]).join("\n• ")), "err");
+      else { await load(); msg(T("Configuration from “%s” applied.", f.name), "ok"); }
+    } catch (e) { msg(T("Error: %s", e.message), "err"); }
+  };
+  $("#btn-reconnect").onclick = async () => { await fetch("/api/admin/dsp/reconnect", { method: "POST" }); msg(T("Reconnecting to the DSP …")); };
+  $("#add-source").onclick = () => { const used = new Set(site.sources.map(s => s.input)); let n = 1; while (used.has(n)) n++; site.sources.push({ id: "", input: n, name: T("New source"), icon: "music", group: "" }); renderSources(); };
+  $("#add-zone").onclick = () => { const used = new Set(site.zones.map(z => z.output)); let n = 1; while (used.has(n)) n++; site.zones.push({ id: "", output: n, name: T("New zone"), icon: "speaker", hint: "" }); renderZones(); renderGroups(); };
+  $("#add-group").onclick = () => { site.groups.push({ id: "", name: T("New group"), zones: [] }); renderGroups(); };
+  $("#add-source-group").onclick = () => { site.sourceGroups.push({ id: "", name: T("New source group"), icon: "group", mode: "exclusive", sources: [] }); renderSourceGroups(); };
+  $("#add-panel").onclick = () => { site.panels.push({ id: "", name: T("New screen"), host: "", user: "admin", password: "", zones: "*", token: uuid() }); renderPanels(); };
+  $("#btn-publish").onclick = () => publish(null);
+  setInterval(async () => { try { const r = await fetch("/api/health"); const d = await r.json(); setDsp(d.dsp); } catch (_) {} }, 5000);
+  load();
+})();
+</script>
+</body>
+</html>

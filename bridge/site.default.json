@@ -1,0 +1,254 @@
+{
+  "site": {
+    "name": "DSP Panel",
+    "area": ""
+  },
+  "publicUrl": "",
+  "admin": {
+    "password": ""
+  },
+  "security": {
+    "requireToken": true
+  },
+  "theme": {
+    "logo": "",
+    "logoHeight": 58,
+    "background": "",
+    "veil": 1,
+    "colors": {
+      "bg0": "#041721",
+      "bg1": "#062330",
+      "bg2": "#0b3142",
+      "bg3": "#124256",
+      "bg4": "#1a556c",
+      "accent": "#2689a8",
+      "accentHi": "#4fb6d4",
+      "active": "#f2b24a",
+      "activeHi": "#ffd27a",
+      "text": "#eef6f9",
+      "textDim": "#a9c3cf",
+      "textFaint": "#6f8f9d",
+      "ok": "#58d48f",
+      "down": "#ef6b5b"
+    }
+  },
+  "dsp": {
+    "host": "192.168.1.50",
+    "port": 23,
+    "password": "",
+    "reconnectMs": 3000,
+    "keepAliveMs": 30000,
+    "silenceTimeoutMs": 90000,
+    "minGapMs": 100,
+    "replyTimeoutMs": 400,
+    "pollMs": 0
+  },
+  "control": {
+    "mode": "direct",
+    "inputLevelBlock": "401",
+    "inputMuteBlock": "400",
+    "zoneBlock": "600"
+  },
+  "levels": {
+    "input": {
+      "min": -36,
+      "max": 6
+    },
+    "zone": {
+      "min": -100,
+      "max": -6
+    }
+  },
+  "sources": [
+    {
+      "id": "mic1",
+      "input": 1,
+      "name": "Mikrofon 1",
+      "icon": "mic",
+      "group": ""
+    },
+    {
+      "id": "mic2",
+      "input": 2,
+      "name": "Mikrofon 2",
+      "icon": "mic",
+      "group": ""
+    },
+    {
+      "id": "mic3",
+      "input": 3,
+      "name": "Mikrofon 3",
+      "icon": "mic",
+      "group": ""
+    },
+    {
+      "id": "mic4",
+      "input": 4,
+      "name": "Mikrofon 4",
+      "icon": "mic",
+      "group": ""
+    },
+    {
+      "id": "music1",
+      "input": 5,
+      "name": "Musikk 1",
+      "icon": "music",
+      "group": ""
+    },
+    {
+      "id": "music2",
+      "input": 6,
+      "name": "Musikk 2",
+      "icon": "music",
+      "group": ""
+    },
+    {
+      "id": "music3",
+      "input": 7,
+      "name": "Musikk 3",
+      "icon": "music",
+      "group": ""
+    },
+    {
+      "id": "radio",
+      "input": 8,
+      "name": "Radio",
+      "icon": "radio",
+      "group": ""
+    },
+    {
+      "id": "in9",
+      "input": 9,
+      "name": "Inngang 9",
+      "icon": "xlr",
+      "group": ""
+    },
+    {
+      "id": "in10",
+      "input": 10,
+      "name": "Inngang 10",
+      "icon": "xlr",
+      "group": ""
+    }
+  ],
+  "zones": [
+    {
+      "id": "zone1",
+      "output": 1,
+      "name": "Sone 1",
+      "icon": "speaker",
+      "hint": ""
+    },
+    {
+      "id": "zone2",
+      "output": 2,
+      "name": "Sone 2",
+      "icon": "speaker",
+      "hint": ""
+    },
+    {
+      "id": "zone3",
+      "output": 3,
+      "name": "Sone 3",
+      "icon": "speaker",
+      "hint": ""
+    },
+    {
+      "id": "zone4",
+      "output": 4,
+      "name": "Sone 4",
+      "icon": "speaker",
+      "hint": ""
+    }
+  ],
+  "groups": [
+    {
+      "id": "all",
+      "name": "Alle soner",
+      "zones": "*"
+    }
+  ],
+  "sourceGroups": [
+    {
+      "id": "mics",
+      "name": "Alle mikrofoner",
+      "icon": "mic",
+      "mode": "toggle",
+      "sources": [
+        "mic1",
+        "mic2",
+        "mic3",
+        "mic4"
+      ]
+    },
+    {
+      "id": "music",
+      "name": "Musikk",
+      "icon": "music",
+      "mode": "exclusive",
+      "sources": [
+        "music1",
+        "music2",
+        "music3"
+      ]
+    }
+  ],
+  "panels": [
+    {
+      "id": "web",
+      "name": "Nettleser / mobil",
+      "host": "",
+      "user": "admin",
+      "password": "",
+      "zones": "*"
+    },
+    {
+      "id": "tsw1070",
+      "name": "TSW-1070",
+      "host": "",
+      "user": "admin",
+      "password": "",
+      "zones": "*"
+    },
+    {
+      "id": "ts770",
+      "name": "TS-770",
+      "host": "",
+      "user": "admin",
+      "password": "",
+      "zones": "*",
+      "views": [
+        "zones"
+      ],
+      "scale": 1.3
+    }
+  ],
+  "ui": {
+    "lang": "en",
+    "volumeStepPercent": 5,
+    "clock24h": true
+  },
+  "advanced": {
+    "scaling": {
+      "analogMax": 65535,
+      "groupDbScale": 10,
+      "gainOffset": 2048
+    },
+    "groupsFallback": {
+      "inputGainBase": 0,
+      "inputMuteBase": 10,
+      "zoneGainBase": 20,
+      "zoneMuteBase": 25
+    },
+    "sis": {
+      "verbose": "3CV",
+      "keepAlive": "CV",
+      "gainSet": "G{oid}*{v}AU",
+      "gainView": "G{oid}AU",
+      "muteSet": "M{oid}*{v}AU",
+      "muteView": "M{oid}AU",
+      "groupSet": "D{g}*{v}GRPM",
+      "groupView": "D{g}GRPM"
+    }
+  }
+}

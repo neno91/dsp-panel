@@ -1,0 +1,17 @@
+# dependencies / build output
+node_modules/
+dist/
+bridge/.build/
+
+# live configuration – holds DSP/admin passwords and access tokens; the bridge creates it from bridge/site.default.json
+bridge/site.json
+bridge/data/
+*.ch5z
+
+# leftovers from the old Crestron-processor variant, if present locally
+cr-com-lib.js
+webxpanel.js
+
+# OS / editor
+.DS_Store
+*.log

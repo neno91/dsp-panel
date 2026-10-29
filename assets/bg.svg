@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1920 1200" width="1920" height="1200" preserveAspectRatio="xMidYMid slice">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#0b3142"/><stop offset="1" stop-color="#041721"/></linearGradient>
+    <radialGradient id="glow" cx=".8" cy="1" r=".9"><stop offset="0" stop-color="#2689a8" stop-opacity=".55"/><stop offset="1" stop-color="#2689a8" stop-opacity="0"/></radialGradient>
+    <radialGradient id="glow2" cx=".1" cy=".2" r=".7"><stop offset="0" stop-color="#4fb6d4" stop-opacity=".25"/><stop offset="1" stop-color="#4fb6d4" stop-opacity="0"/></radialGradient>
+  </defs>
+  <rect width="1920" height="1200" fill="url(#sky)"/>
+  <rect width="1920" height="1200" fill="url(#glow)"/>
+  <rect width="1920" height="1200" fill="url(#glow2)"/>
+  <g fill="none" stroke="#4fb6d4" stroke-opacity=".12" stroke-width="2">
+    <path d="M-100 820 C 300 700, 600 940, 1000 820 S 1700 700, 2020 820"/>
+    <path d="M-100 900 C 300 780, 600 1020, 1000 900 S 1700 780, 2020 900" stroke-opacity=".09"/>
+    <path d="M-100 980 C 300 860, 600 1100, 1000 980 S 1700 860, 2020 980" stroke-opacity=".06"/>
+    <path d="M-100 740 C 300 620, 600 860, 1000 740 S 1700 620, 2020 740" stroke-opacity=".08"/>
+  </g>
+  <g fill="#4fb6d4" fill-opacity=".05"><circle cx="1500" cy="260" r="260"/><circle cx="380" cy="980" r="320"/></g>
+</svg>

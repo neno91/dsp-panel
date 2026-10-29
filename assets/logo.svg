@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 72" width="300" height="72" role="img" aria-label="DSP Panel">
+  <defs>
+    <linearGradient id="g" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#4fb6d4"/><stop offset="1" stop-color="#2689a8"/></linearGradient>
+  </defs>
+  <rect x="4" y="8" width="56" height="56" rx="14" fill="url(#g)"/>
+  <path d="M18 29h7l9-7v28l-9-7h-7z" fill="#041721"/>
+  <path d="M40 27c3 3 3 15 0 18M46 22c6 6 6 22 0 28" fill="none" stroke="#041721" stroke-width="3.2" stroke-linecap="round"/>
+  <text x="74" y="46" font-family="Sora, 'Segoe UI', system-ui, sans-serif" font-size="30" font-weight="600" fill="#eef6f9" letter-spacing=".5">DSP <tspan fill="#4fb6d4">Panel</tspan></text>
+</svg>

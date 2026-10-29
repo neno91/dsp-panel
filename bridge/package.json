@@ -1,0 +1,21 @@
+{
+  "name": "dsp-panel-bridge",
+  "version": "1.0.0",
+  "description": "DSP Panel bridge: serves the HTML5 audio panel, talks SIS to an Extron DMP 128, hosts /admin and publishes the panel to Crestron touch screens.",
+  "private": true,
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js",
+    "debug": "DSP_DEBUG=1 node server.js",
+    "fake-dmp": "node tools/fake-dmp.js 2323",
+    "dev": "DSP_HOST=127.0.0.1 DSP_PORT=2323 node server.js",
+    "build:panel": "node tools/build-panel.js"
+  },
+  "engines": {
+    "node": ">=18"
+  },
+  "dependencies": {
+    "ws": "^8.18.0",
+    "@crestron/ch5-utilities-cli": "^2.0.0"
+  }
+}
