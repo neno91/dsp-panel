@@ -39,15 +39,38 @@ logo and colours – is configured on the bridge's `/admin` page.
 
 ```
 dsp-panel/
-├── index.html, css/, js/, assets/   the panel (plain HTML/CSS/JS, no framework; texts in js/i18n.js – nb/en)
-│   └── js/config.js                 default config for opening index.html directly (simulation)
+├── index.html, css/app.css, assets/   the panel (plain HTML/CSS/JS, no framework or build step)
+├── js/
+│   ├── config.js                    default config for opening index.html directly (simulation);
+│   │                                the bridge generates a per-screen one at /js/config.js
+│   ├── i18n.js                      panel texts, nb/en
+│   ├── bridge.js                    WebSocket transport, or the built-in simulator
+│   ├── core.js                      config, language, scale, theme, layout; join state; tap buttons
+│   ├── fader.js                     touch fader (hold until the DSP settles)
+│   ├── source-groups.js             source groups (toggle together / one at a time)
+│   ├── groups.js                    zone groups (control several zones as one)
+│   └── app.js                       views, zone cards, mixer, clock, status, boot
 └── bridge/
-    ├── server.js                    the bridge: DSP link, WebSocket, panel files, /admin, publishing
+    ├── server.js                    entry point: createBridge(site.json).listen()
+    ├── lib/
+    │   ├── bridge.js                wires the modules below together
+    │   ├── site.js                  site.json: load, validate, apply, tokens, theme
+    │   ├── model.js                 joins ⇄ DSP objects, generated panel config
+    │   ├── dsp.js                   DspLink – paced SIS session over TCP
+    │   ├── control.js               Controller – join state, actions, DMP replies
+    │   ├── auth.js                  screen tokens, admin password
+    │   ├── publish.js               .ch5z build + ch5-cli deploy
+    │   ├── http.js                  routes and static files
+    │   └── ws.js                    WebSocket to the panels
+    ├── admin/                       the /admin page: index.html, admin.css, admin.js, i18n-nb.js
+    ├── test/                        npm test – see *Tests*
     ├── site.default.json            shipped defaults → copied to site.json on first start
     ├── site.json                    live configuration (edit via /admin; not in git – holds passwords/tokens)
-    ├── admin/index.html             the /admin page
     └── tools/                       deploy-pi.sh, install-pi.sh, build-panel.js, fake-dmp.js, probe-dmp.js
 ```
+
+The DSP is the single source of truth: the bridge never assumes a command
+worked – every lit button and fader position comes from a DMP reply.
 
 ## Run
 
@@ -78,6 +101,20 @@ Pi (the script's header shows both commands).
 **Without a DSP** (development): `npm run fake-dmp` in one terminal, `npm run dev`
 in another – an emulated DMP 128 on port 2323. Opening `index.html` directly
 in a browser runs the UI against a built-in simulator.
+
+## Tests
+
+```bash
+cd bridge && npm test            # boots the bridge in-process against the emulated DMP
+```
+
+`test/bridge.test.js` covers the DSP link (state read, pacing, urgent commands,
+deduplicated fader values, password prompt), the controller (routes, exclusive
+source groups, dB scaling), access (tokens, admin password) and the admin API
+(validation, apply/reload, per-screen config, backup/restore).
+`test/ui.test.js` drives the panel and `/admin` in Chromium – tap vs. swipe,
+faders, per-screen scale and layout, nb/en, live theme preview – and skips
+itself unless Playwright is installed (`npm i -D playwright && npx playwright install chromium`).
 
 ## /admin
 
