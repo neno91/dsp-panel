@@ -64,35 +64,35 @@ writes `site.json`, re-reads the DSP and reloads every open panel.
 
 | Section | What |
 |---|---|
-| DSP-tilkobling | IP, port, password, keepalive/timeouts, command pacing, reconnect |
-| Styring | direct block control (default) or DMP groups; block numbers; fader dB ranges |
-| Sted og panel | name, volume step, panel language (English / Norwegian, overridable per screen; the admin page has its own language switch in the header), admin password, bridge address as seen from the screens, token requirement |
-| Utseende | logo and background image (uploaded, stored in `bridge/data/`, bundled into the `.ch5z`), logo height, background darkening, the complete colour palette (14 colours, with presets) – edits show live in the preview, *Lagre* applies them everywhere |
-| Kilder | one row per DSP input: name, input number, icon, optional label (mixer tag) |
-| Soner | one row per DSP output: name, output number, icon, hint |
-| Grupper | zone groups shown on the panel (users can also make their own) |
-| Kildegrupper | source groups: *kun én om gangen* (Musikk 1/2/3 – selecting one switches the others off) or *slå av/på samlet* (one button per zone, e.g. Alle mikrofoner) |
-| Skjermer og tilganger | the touch screens and browser accesses – see below |
+| DSP connection | IP, port, password, keepalive/timeouts, command pacing, reconnect |
+| Control | direct block control (default) or DMP groups; block numbers; fader dB ranges |
+| Site and panel | name, volume step, panel language (English / Norwegian, overridable per screen; the admin page has its own language switch in the header, English by default), admin password, bridge address as seen from the screens, token requirement |
+| Appearance | logo and background image (uploaded, stored in `bridge/data/`, bundled into the `.ch5z`), logo height, background darkening, the complete colour palette (14 colours, with presets) – edits show live in the preview, *Save* applies them everywhere |
+| Sources | one row per DSP input: name, input number, icon, optional label (mixer tag) |
+| Zones | one row per DSP output: name, output number, icon, hint |
+| Zone groups | zone groups shown on the panel (users can also make their own) |
+| Source groups | *only one at a time* (Music 1/2/3 – selecting one switches the others off) or *toggle together* (one button per zone, e.g. All microphones) |
+| Screens and access | the touch screens and browser accesses – see below |
 
-Backup/restore: *Last ned konfigurasjon* / *Last opp konfigurasjon* (whole
+Backup/restore: *Download configuration* / *Upload configuration* (whole
 `site.json`).
 
 ### Screens, access and publishing
 
-Each row under **Skjermer og tilganger** is a screen *and* an access:
+Each row under **Screens and access** is a screen *and* an access:
 
-* **Zones / views** – which zones and which views (Soner, Mikser) that screen
+* **Zones / views** – which zones and which views (Zones, Mixer) that screen
   shows. Zone groups are filtered accordingly.
-* **Skala** – magnification of the whole UI on that screen (1.3 suits the
+* **Scale** – magnification of the whole UI on that screen (1.3 suits the
   7″ TS-770, 1.0–1.2 the 10″ TSW-1070).
-* **Tilgangsnøkkel** – a GUID. With *Krev tilgangsnøkkel* on (default), the
+* **Access key** – a GUID. With *Require access key* on (default), the
   panel, its files, `/api/state` and the WebSocket all require a screen's
-  token. Browsers open the link from *Kopier lenke*
+  token. Browsers open the link from *Copy link*
   (`http://<bridge>:3000/?token=…`) once; it is kept in a cookie. A row
-  without an IP is simply a browser/phone access. *Ny nøkkel* revokes the old
+  without an IP is simply a browser/phone access. *New key* revokes the old
   one. `/admin` itself is protected by the admin password (required while
   tokens are on).
-* **Publiser** – for rows with an IP (Crestron TSW-1070 / TS-770): the bridge
+* **Publish** – for rows with an IP (Crestron TSW-1070 / TS-770): the bridge
   builds a `.ch5z` with that screen's config (zones, views, scale, bridge
   WebSocket URL with the token baked in) using Crestron's `ch5-cli` and
   deploys it to the panel over SFTP with the saved login. Progress is shown
@@ -118,10 +118,10 @@ verbose mode 3 so it reports every change, whoever made it.
 | Source with input *n* | mute D(20+n), level A(20+n) | mute `400(n−1)`, gain `401(n−1)` |
 | Zone with output *o* | mute D(30+o), volume A(30+o) | output `600(o−1)` |
 | Route source *n* → zone *o* | D(100 + (o−1)·10 + n−1) | mixpoint `2(n−1)(o−1)` mute (0 = on) |
-| Views Soner / Mikser | D7 / D8 | – |
+| Views Zones / Mixer | D7 / D8 | – |
 
 Gains are sent in tenths of dB with the +2048 offset, scaled between the dB
-ranges set under *Styring*. *DMP-grupper* mode uses DSP groups instead
+ranges set under *Control*. *DMP groups* mode uses DSP groups instead
 (`advanced.groupsFallback` in `site.json`). One command is in flight at a time
 with a configurable gap; user actions go ahead of queued state reads.
 
