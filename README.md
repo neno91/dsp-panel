@@ -69,7 +69,11 @@ bash bridge/tools/deploy-pi.sh pi@<pi-host>     # from your machine: copies the 
 ssh pi@<pi-host> journalctl -u dsp-panel -f     # logs
 ```
 
-Re-run the same command to upgrade; the Pi's `site.json` is kept.
+Re-run the same command to upgrade; the Pi's `site.json` is kept. The script
+uses one SSH connection for both the copy and the install, so you are asked
+for the SSH password once; `ssh-copy-id <user>@<pi-host>` removes that too,
+and a `NOPASSWD` sudoers entry for the user removes the `sudo` prompt on the
+Pi (the script's header shows both commands).
 
 **Without a DSP** (development): `npm run fake-dmp` in one terminal, `npm run dev`
 in another – an emulated DMP 128 on port 2323. Opening `index.html` directly
