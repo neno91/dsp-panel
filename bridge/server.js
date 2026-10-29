@@ -122,6 +122,8 @@ function validateSite(s) {
   });
   if (s.publicUrl && !/^https?:\/\/[\w.:-]+(\/.*)?$/.test(s.publicUrl)) p.push("bridge address must look like http://<ip>:3000");
   if (s.ui && s.ui.lang && !LANGS.includes(s.ui.lang)) p.push(`language must be ${LANGS.join("/")}`);
+  if (s.ui && s.ui.zoneLayout && !["scroll", "scroll2", "grid"].includes(s.ui.zoneLayout)) p.push("zone layout must be scroll, scroll2 or grid");
+  if (s.ui && s.ui.sourceLayout && !["tiles", "list"].includes(s.ui.sourceLayout)) p.push("source layout must be tiles or list");
   const th = s.theme || {};
   const hex = v => /^#[0-9a-f]{6}$/i.test(v);
   Object.entries(th.colors || {}).forEach(([k, v]) => { if (!hex(v)) p.push(`theme colour ${k}: use #rrggbb`); });
@@ -214,7 +216,7 @@ function panelConfigJs(s, panel, pinTransport) {
     site: s.site,
     panel: panel ? { id: panel.id, name: panel.name } : undefined,
     views,
-    sources: s.sources.map(x => ({ id: x.id, input: x.input, name: x.name, icon: x.icon || "music", group: x.group || undefined, hint: x.hint || undefined, joinOffset: srcOffset(x) })),
+    sources: s.sources.map(x => ({ id: x.id, input: x.input, name: x.name, short: x.short || undefined, icon: x.icon || "music", group: x.group || undefined, hint: x.hint || undefined, joinOffset: srcOffset(x) })),
     levels: s.levels,
     zones: zones.map(z => ({ id: z.id, name: z.name, icon: z.icon || "speaker", select: zoneJoin(z), volume: zoneJoin(z), sourceJoinBase: routeBase(z), hint: z.hint || undefined })),
     groups,

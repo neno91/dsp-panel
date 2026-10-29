@@ -24,6 +24,7 @@ window.PANEL_CONFIG = {
       "id": "mic1",
       "input": 1,
       "name": "Microphone 1",
+      "short": "Mic 1",
       "icon": "mic",
       "joinOffset": 0
     },
@@ -31,6 +32,7 @@ window.PANEL_CONFIG = {
       "id": "mic2",
       "input": 2,
       "name": "Microphone 2",
+      "short": "Mic 2",
       "icon": "mic",
       "joinOffset": 1
     },
@@ -38,6 +40,7 @@ window.PANEL_CONFIG = {
       "id": "mic3",
       "input": 3,
       "name": "Microphone 3",
+      "short": "Mic 3",
       "icon": "mic",
       "joinOffset": 2
     },
@@ -45,6 +48,7 @@ window.PANEL_CONFIG = {
       "id": "mic4",
       "input": 4,
       "name": "Microphone 4",
+      "short": "Mic 4",
       "icon": "mic",
       "joinOffset": 3
     },
@@ -52,6 +56,7 @@ window.PANEL_CONFIG = {
       "id": "music1",
       "input": 5,
       "name": "Music 1",
+      "short": "Music 1",
       "icon": "music",
       "joinOffset": 4
     },
@@ -59,6 +64,7 @@ window.PANEL_CONFIG = {
       "id": "music2",
       "input": 6,
       "name": "Music 2",
+      "short": "Music 2",
       "icon": "music",
       "joinOffset": 5
     },
@@ -66,6 +72,7 @@ window.PANEL_CONFIG = {
       "id": "music3",
       "input": 7,
       "name": "Music 3",
+      "short": "Music 3",
       "icon": "music",
       "joinOffset": 6
     },
@@ -80,6 +87,7 @@ window.PANEL_CONFIG = {
       "id": "in9",
       "input": 9,
       "name": "Input 9",
+      "short": "In 9",
       "icon": "xlr",
       "joinOffset": 8
     },
@@ -87,6 +95,7 @@ window.PANEL_CONFIG = {
       "id": "in10",
       "input": 10,
       "name": "Input 10",
+      "short": "In 10",
       "icon": "xlr",
       "joinOffset": 9
     }
@@ -173,10 +182,20 @@ window.PANEL_CONFIG = {
     "background": "",
     "veil": 1,
     "colors": {
+      "bg0": "#041721",
+      "bg1": "#062330",
+      "bg2": "#0b3142",
+      "bg3": "#124256",
+      "bg4": "#1a556c",
       "accent": "#2689a8",
       "accentHi": "#4fb6d4",
       "active": "#f2b24a",
-      "activeHi": "#ffd27a"
+      "activeHi": "#ffd27a",
+      "text": "#eef6f9",
+      "textDim": "#a9c3cf",
+      "textFaint": "#6f8f9d",
+      "ok": "#58d48f",
+      "down": "#ef6b5b"
     }
   },
   "mixer": [
@@ -239,6 +258,8 @@ window.PANEL_CONFIG = {
     "volumeStepPercent": 5,
     "clock24h": true,
     "lang": "en",
+    "zoneLayout": "scroll",
+    "sourceLayout": "tiles",
     "analogMax": 65535
   }
 };

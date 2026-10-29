@@ -44,6 +44,11 @@
     if (bd) bd.style.backgroundImage = !T.background ? "" : T.background === "none" ? "none" : `url("${T.background}")`;
   }
   applyTheme(C.theme);
+  // layout options (Site and panel in /admin): zones as a side-scrolling row or a grid; sources as compact tiles or a list
+  document.body.dataset.zones = C.ui.zoneLayout === "grid" ? "grid" : "scroll";
+  document.body.dataset.zoneRows = C.ui.zoneLayout === "scroll2" ? "2" : "1";
+  document.body.dataset.sources = C.ui.sourceLayout === "list" ? "list" : "tiles";
+  const srcLabel = s => (document.body.dataset.sources === "tiles" && s.short) ? s.short : s.name;
   // live preview from /admin (same origin): the admin page posts the theme as it is being edited
   window.addEventListener("message", e => { if (e.origin === location.origin && e.data && e.data.t === "theme") applyTheme(e.data.theme); });
 
@@ -228,12 +233,19 @@
     document.querySelectorAll(".view").forEach(s => { s.hidden = true; });   // views not in the config (per-screen setup) stay hidden
     if (C.views.length < 2) nav.hidden = true;
     C.views.forEach(v => { panes[v.id] = $(`#view-${v.id}`); panes[v.id].hidden = true; });
+    // the view is local to this screen (not a shared join – switching to the mixer on one panel must not switch the others)
+    const btns = {};
+    const show = id => {
+      C.views.forEach(v => { panes[v.id].hidden = v.id !== id; btns[v.id].classList.toggle("is-active", v.id === id); btns[v.id].setAttribute("aria-pressed", v.id === id ? "true" : "false"); });
+      document.body.dataset.view = id;
+      try { sessionStorage.setItem("dsp-panel.view", id); } catch (_) {}
+    };
     C.views.forEach(v => {
-      const btn = el("button", { class: "nav-btn", type: "button", id: `nav-${v.id}` }, svgIcon(v.icon), el("span", {}, (L.views[v.id] || v.label)));
-      bindJoinButton(btn, v.join);
-      bindFeedback(btn, v.join, on => { panes[v.id].hidden = !on; if (on) document.body.dataset.view = v.id; });
-      nav.append(btn);
+      btns[v.id] = el("button", { class: "nav-btn", type: "button", id: `nav-${v.id}`, onclick: () => show(v.id) }, svgIcon(v.icon), el("span", {}, (L.views[v.id] || v.label)));
+      nav.append(btns[v.id]);
     });
+    let initial = C.views[0].id; try { const s = sessionStorage.getItem("dsp-panel.view"); if (C.views.some(v => v.id === s)) initial = s; } catch (_) {}
+    show(initial);
   }
 
   function buildZones() {
@@ -265,7 +277,7 @@
       const list = el("div", { class: "source-list", role: "group", "aria-label": L.zoneSources(z.name) });
       C.sources.forEach((s, i) => {
         const join = routeJoin(z, s, i);
-        const b = el("button", { class: "source-btn", type: "button", "aria-label": L.sourceTo(s.name, z.name), title: srcHint(s) }, svgIcon(s.icon), el("span", {}, s.name));
+        const b = el("button", { class: "source-btn", type: "button", "aria-label": L.sourceTo(s.name, z.name), title: srcHint(s) || s.name }, svgIcon(s.icon), el("span", {}, srcLabel(s)));
         bindJoinButton(b, join);
         bindFeedback(b, join);   // each source is an independent on/off toggle
         list.append(b);
@@ -396,7 +408,7 @@
       const minus = el("button", { class: "nudge", type: "button", "aria-label": L.lower, onclick: () => ui.fader.nudge(-1) }, svgIcon("minus"));
       const plus  = el("button", { class: "nudge", type: "button", "aria-label": L.higher, onclick: () => ui.fader.nudge(1) }, svgIcon("plus"));
       ui.sources = C.sources.map((s, i) =>
-        el("button", { class: "source-btn", type: "button", "aria-label": L.sourceIn(s.name, g.name), title: srcHint(s), onclick: () => setSource(g, i) }, svgIcon(s.icon), el("span", {}, s.name)));
+        el("button", { class: "source-btn", type: "button", "aria-label": L.sourceIn(s.name, g.name), title: srcHint(s) || s.name, onclick: () => setSource(g, i) }, svgIcon(s.icon), el("span", {}, srcLabel(s))));
       const sgRow = sourceGroupRow(g.name, sg => members(g).flatMap(z => sg.idx.map(i => routeJoin(z, C.sources[i], i))));
 
       const controls = el("div", { class: "group-controls" },
@@ -478,7 +490,6 @@
   /* ---------- Simulator seed (browser demo only) ---------- */
   function seedSim() {
     const S = B.Sim;
-    S.rules.interlock.push(C.views.map(v => String(v.join)));
     C.zones.forEach(z => {
       S.rules.toggle.add(String(z.select));
       C.sources.forEach((s, i) => S.rules.toggle.add(String(routeJoin(z, s, i))));   // each source is on/off per zone
@@ -488,7 +499,6 @@
     });
     C.mixer.forEach(ch => S.rules.toggle.add(String(ch.button)));
 
-    S.set("b", C.views[0].join, true);
     const seed = {
       restaurant: [["music1", "led"],  0.62, true],
       reception:  [["radio"],          0.48, true],

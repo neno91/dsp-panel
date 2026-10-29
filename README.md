@@ -88,9 +88,9 @@ writes `site.json`, re-reads the DSP and reloads every open panel.
 |---|---|
 | DSP connection | IP, port, password, keepalive/timeouts, command pacing, reconnect |
 | Control | direct block control (default) or DMP groups; block numbers; fader dB ranges |
-| Site and panel | name, volume step, panel language (English / Norwegian, overridable per screen; the admin page has its own language switch in the header, English by default), admin password, bridge address as seen from the screens, token requirement |
+| Site and panel | name, volume step, panel language (English / Norwegian, overridable per screen; the admin page has its own language switch in the header, English by default), **zones layout** (side-scrolling row of full-height cards – one or two rows – or a wrapping grid), **source buttons** (compact tiles with short names, or a list), admin password, bridge address as seen from the screens, token requirement |
 | Appearance | logo and background image (uploaded, stored in `bridge/data/`, bundled into the `.ch5z`), logo height, background darkening, the complete colour palette (14 colours, with presets) – edits show live in the preview, *Save* applies them everywhere |
-| Sources | one row per DSP input: name, input number, icon, optional label (mixer tag) |
+| Sources | one row per DSP input: name, short name (for the tiles), input number, icon, optional label (mixer tag) |
 | Zones | one row per DSP output: name, output number, icon, hint |
 | Zone groups | zone groups shown on the panel (users can also make their own) |
 | Source groups | *only one at a time* (Music 1/2/3 – selecting one switches the others off) or *toggle together* (one button per zone, e.g. All microphones) |

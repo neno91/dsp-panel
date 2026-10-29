@@ -132,12 +132,31 @@ svg.icon { width: 1.25em; height: 1.25em; fill: none; stroke: currentColor; stro
 .eyebrow { font-size: 0.6875rem; letter-spacing: .08em; text-transform: uppercase; color: var(--fg-faint); font-weight: 600; }
 
 /* ---------- zones ---------- */
+/* grid layout: cards wrap, page scrolls vertically */
 .zones-grid {
   display: grid; gap: 0.75rem;
   grid-template-columns: repeat(auto-fit, minmax(16.75rem, 1fr));
   grid-auto-rows: 1fr;                    /* cards share the view's height … */
   align-items: stretch; flex: 1;          /* … and the grid takes all of it */
 }
+/* side-scrolling layout (default): one row of full-height cards, swipe/scroll sideways for more */
+body[data-zones="scroll"] .zones-grid {
+  display: flex; align-items: stretch; gap: 0.75rem; flex: 1; min-height: 0;
+  overflow-x: auto; overflow-y: hidden; overscroll-behavior-x: contain;
+  scroll-snap-type: x proximity; scroll-padding-inline: var(--gutter-l);
+  margin-inline: calc(-1 * var(--gutter-l)) calc(-1 * var(--gutter-r)); padding: 0 var(--gutter-r) 0.5rem var(--gutter-l);
+  scrollbar-width: thin; scrollbar-color: rgba(var(--text-rgb), .25) transparent;
+}
+body[data-zones="scroll"] .zones-grid::-webkit-scrollbar { height: 0.375rem; }
+body[data-zones="scroll"] .zones-grid::-webkit-scrollbar-thumb { background: rgba(var(--text-rgb), .25); border-radius: 999px; }
+body[data-zones="scroll"] .zone { flex: 1 0 var(--zone-w, 21rem); max-width: 28rem; scroll-snap-align: start; }
+/* two rows of cards, filling column by column, still scrolling sideways */
+body[data-zones="scroll"][data-zone-rows="2"] .zones-grid { display: grid; grid-auto-flow: column; grid-template-rows: repeat(2, minmax(0, 1fr)); grid-auto-columns: minmax(var(--zone-w, 21rem), 1fr); }
+body[data-zones="scroll"][data-zone-rows="2"] .zone { max-width: none; }
+body[data-zones="scroll"] .shell { height: 100%; }
+body[data-zones="scroll"] #view-zones { min-height: 0; }
+body[data-zones="scroll"] .zone { min-height: 0; }
+body[data-zones="scroll"] .source-list { min-height: 0; overflow-y: auto; }
 .zone {
   display: flex; flex-direction: column; gap: 0.75rem;
   padding: 0.875rem 0.875rem 0.75rem;
@@ -185,6 +204,15 @@ svg.icon { width: 1.25em; height: 1.25em; fill: none; stroke: currentColor; stro
   transition: background .12s, color .12s;
 }
 .source-btn span { white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+/* compact tiles (default): icon above a short label, 4–5 per row, still ≥ 56 px tall */
+body[data-sources="tiles"] .source-list { grid-template-columns: repeat(auto-fill, minmax(3.5rem, 1fr)); grid-auto-rows: minmax(3.5rem, 5rem); gap: 0.375rem; align-content: start; }
+body[data-sources="tiles"] .source-btn { flex-direction: column; justify-content: center; gap: 0.3rem; padding: 0.4rem 0.25rem; min-height: 3.5rem; font-size: 0.75rem; text-align: center; }
+body[data-sources="tiles"] .source-btn svg.icon { width: 1.35rem; height: 1.35rem; }
+body[data-sources="tiles"] .source-btn span { white-space: normal; line-height: 1.1; max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+body[data-sources="tiles"] .source-btn.is-some::after { margin: 0; position: absolute; top: 0.35rem; right: 0.35rem; }
+body[data-sources="tiles"] .source-btn { position: relative; }
+body[data-sources="tiles"] .source-group-btn { flex-direction: row; min-height: 2.75rem; font-size: 0.875rem; text-align: left; padding: 0.4rem 0.875rem; }
+body[data-sources="tiles"] .source-group-btn svg.icon { width: 1.1rem; height: 1.1rem; }
 .source-btn:hover { background: var(--navy-700); color: var(--fg); }
 .source-btn.is-active { background: var(--teal); color: #fff; }
 .source-btn.is-pressed { transform: scale(.97); }

@@ -65,49 +65,56 @@
       "input": 1,
       "name": "Microphone 1",
       "icon": "mic",
-      "group": ""
+      "group": "",
+      "short": "Mic 1"
     },
     {
       "id": "mic2",
       "input": 2,
       "name": "Microphone 2",
       "icon": "mic",
-      "group": ""
+      "group": "",
+      "short": "Mic 2"
     },
     {
       "id": "mic3",
       "input": 3,
       "name": "Microphone 3",
       "icon": "mic",
-      "group": ""
+      "group": "",
+      "short": "Mic 3"
     },
     {
       "id": "mic4",
       "input": 4,
       "name": "Microphone 4",
       "icon": "mic",
-      "group": ""
+      "group": "",
+      "short": "Mic 4"
     },
     {
       "id": "music1",
       "input": 5,
       "name": "Music 1",
       "icon": "music",
-      "group": ""
+      "group": "",
+      "short": "Music 1"
     },
     {
       "id": "music2",
       "input": 6,
       "name": "Music 2",
       "icon": "music",
-      "group": ""
+      "group": "",
+      "short": "Music 2"
     },
     {
       "id": "music3",
       "input": 7,
       "name": "Music 3",
       "icon": "music",
-      "group": ""
+      "group": "",
+      "short": "Music 3"
     },
     {
       "id": "radio",
@@ -121,14 +128,16 @@
       "input": 9,
       "name": "Input 9",
       "icon": "xlr",
-      "group": ""
+      "group": "",
+      "short": "In 9"
     },
     {
       "id": "in10",
       "input": 10,
       "name": "Input 10",
       "icon": "xlr",
-      "group": ""
+      "group": "",
+      "short": "In 10"
     }
   ],
   "zones": [
@@ -226,7 +235,9 @@
   "ui": {
     "lang": "en",
     "volumeStepPercent": 5,
-    "clock24h": true
+    "clock24h": true,
+    "zoneLayout": "scroll",
+    "sourceLayout": "tiles"
   },
   "advanced": {
     "scaling": {
