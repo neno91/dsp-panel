@@ -383,8 +383,11 @@ const PACE = () => ({ minGapMs: SITE.dsp.minGapMs != null ? SITE.dsp.minGapMs : 
 
 /* urgent = a user action: goes ahead of pending view queries (the ~75 reads at session start
    would otherwise delay the first button presses by several seconds). Queue items: { c, urgent } */
-function dspSend(cmd, urgent) {
-  const item = { c: ESC + cmd + CR, urgent: !!urgent };
+function dspSend(cmd, urgent, key) {
+  const item = { c: ESC + cmd + CR, urgent: !!urgent, key };
+  // a newer value for the same control (key) replaces one still waiting in the queue, so a fader drag never
+  // builds a backlog of stale gain commands – the DSP always gets the latest position next
+  if (key) { const i = txQueue.findIndex(x => x.key === key); if (i >= 0) { txQueue[i] = item; pump(); return; } }
   if (urgent) { let i = 0; while (i < txQueue.length && txQueue[i].urgent) i++; txQueue.splice(i, 0, item); } else txQueue.push(item);
   pump();
 }
@@ -498,10 +501,10 @@ function onAnalog(j, v) {
   analogPending.set(j + "_timer", setTimeout(() => {              // coalesce fast fader moves
     analogPending.delete(j + "_timer");
     const val = analogPending.get(j), tenths = Math.round(analogToDb(val, t.min, t.max) * 10);
-    if (t.oid != null) dspSend(tpl(M.sis.gainSet, { oid: t.oid, v: tenths + M.sc.gainOffset }), true);
-    else dspSend(tpl(M.sis.groupSet, { g: t.group, v: tenths }), true);
+    if (t.oid != null) dspSend(tpl(M.sis.gainSet, { oid: t.oid, v: tenths + M.sc.gainOffset }), true, "n" + j);
+    else dspSend(tpl(M.sis.groupSet, { g: t.group, v: tenths }), true, "n" + j);
     state.n.set(j, val); broadcast({ t: "n", j, v: val });
-  }, 60));
+  }, 40));
 }
 
 /* =================== HTTP: panel, generated config, admin =================== */
