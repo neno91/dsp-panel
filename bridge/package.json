@@ -9,7 +9,9 @@
     "debug": "DSP_DEBUG=1 node server.js",
     "fake-dmp": "node tools/fake-dmp.js 2323",
     "dev": "DSP_HOST=127.0.0.1 DSP_PORT=2323 node server.js",
-    "build:panel": "node tools/build-panel.js"
+    "build:panel": "node tools/build-panel.js",
+    "test": "node --test test/*.test.js",
+    "test:ui": "node --test test/ui.test.js"
   },
   "engines": {
     "node": ">=18"
@@ -17,5 +19,8 @@
   "dependencies": {
     "ws": "^8.18.0",
     "@crestron/ch5-utilities-cli": "^2.0.0"
+  },
+  "devDependencies": {
+    "playwright": "^1.48.0"
   }
 }
