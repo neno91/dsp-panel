@@ -148,5 +148,6 @@ Environment overrides: `PORT`, `DSP_HOST`, `DSP_PORT`, `DSP_PASSWORD`
 
 MIT with an attribution clause – see [LICENSE](LICENSE). Free to use, modify
 and sell, including in commercial installations, as long as the
-"Powered by DSP Panel" notice in the admin page stays visible and your
-documentation says the product is based on DSP Panel.
+"Powered by DSP Panel · © Jørgen Skar – Løvold System" notices in the panel
+and the admin page stay visible and your documentation says the product is
+based on DSP Panel. © 2026 Jørgen Skar – Løvold System.
