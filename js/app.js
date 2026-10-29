@@ -19,14 +19,10 @@
   document.querySelectorAll("[data-i18n]").forEach(n => { n.textContent = L[n.dataset.i18n]; });
   document.querySelectorAll("[data-i18n-aria]").forEach(n => { n.setAttribute("aria-label", L[n.dataset.i18nAria]); });
 
-  /* Per-screen scale (set under Skjermer in /admin): on the touch panels (Android WebView) a
-     narrower layout viewport makes the browser zoom the whole UI – consistent hit-testing, no CSS
-     zoom tricks. Desktop browsers ignore a fixed viewport width, so they are unaffected. */
-  const scale = Number(C.ui.scale) || 1;
-  if (scale !== 1 && window.screen && screen.width) {
-    const vp = $('meta[name="viewport"]');
-    if (vp) vp.setAttribute("content", `width=${Math.round(screen.width / scale)}, viewport-fit=cover`);
-  }
+  /* Per-screen scale (set under Screens in /admin): every size in the CSS is in rem, so the root
+     font-size scales the whole UI – works the same in browsers and on the touch panels. */
+  const scale = Math.min(2.5, Math.max(0.6, Number(C.ui.scale) || 1));
+  if (scale !== 1) document.documentElement.style.setProperty("--s", String(scale));
 
   /* ---------- appearance (theme from /admin → Utseende) ---------- */
   const THEME_VARS = { bg0: "--navy-950", bg1: "--navy-900", bg2: "--navy-800", bg3: "--navy-700", bg4: "--navy-600",
@@ -183,7 +179,7 @@
     }
     function fromPointer(e) {
       const r = track.getBoundingClientRect();
-      const horizontal = getComputedStyle(track).height.replace("px", "") < 20; // vertical faders become horizontal on phones
+      const horizontal = r.width > r.height;                                  // vertical faders become horizontal on phones
       const ratio = horizontal ? (e.clientX - r.left) / r.width : 1 - (e.clientY - r.top) / r.height;
       return Math.max(0, Math.min(1, ratio)) * MAX;
     }

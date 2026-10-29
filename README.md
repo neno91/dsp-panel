@@ -105,8 +105,12 @@ Each row under **Screens and access** is a screen *and* an access:
 
 * **Zones / views** – which zones and which views (Zones, Mixer) that screen
   shows. Zone groups are filtered accordingly.
-* **Scale** – magnification of the whole UI on that screen (1.3 suits the
-  7″ TS-770, 1.0–1.2 the 10″ TSW-1070).
+* **Scale** – magnification of the whole UI on that screen (0.6–2.5; every
+  size is in rem, so it works the same in browsers and on the panels). On a
+  1280×800 7″ TS-770 with ten sources per zone, 1.1–1.15 fits without
+  scrolling, 1.3 gives bigger buttons and a little scrolling; 1.0–1.2 suits
+  the 10″ TSW-1070. Zone cards use the full height of the view and the
+  source buttons grow with it.
 * **Access key** – a GUID. With *Require access key* on (default), the
   panel, its files, `/api/state` and the WebSocket all require a screen's
   token. Browsers open the link from *Copy link*

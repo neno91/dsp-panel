@@ -116,7 +116,7 @@ function validateSite(s) {
     if (pn.host && !/^[\w.:-]+$/.test(pn.host)) p.push(`screen ${nm}: invalid IP address`);
     if (pn.zones !== "*" && !Array.isArray(pn.zones)) p.push(`screen ${nm}: zones must be a list or "*"`);
     if (Array.isArray(pn.zones)) { if (!pn.zones.length) p.push(`screen ${nm}: no zones selected`); pn.zones.filter(z => !zoneIds.has(z)).forEach(z => p.push(`screen ${nm}: unknown zone ${z}`)); }
-    if (pn.scale != null && !(Number(pn.scale) >= 1 && Number(pn.scale) <= 2.5)) p.push(`screen ${nm}: scale must be between 1 and 2.5`);
+    if (pn.scale != null && !(Number(pn.scale) >= 0.6 && Number(pn.scale) <= 2.5)) p.push(`screen ${nm}: scale must be between 0.6 and 2.5`);
     if (pn.lang && !LANGS.includes(pn.lang)) p.push(`screen ${nm}: language must be ${LANGS.join("/")}`);
     if (pn.views != null && (!Array.isArray(pn.views) || !pn.views.length || pn.views.some(v => !VIEWS.some(x => x.id === v)))) p.push(`screen ${nm}: views must be a non-empty list of ${VIEWS.map(v => v.id).join("/")}`);
   });
