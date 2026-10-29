@@ -121,21 +121,22 @@
     return { b, n, watch, onChange: fn => listeners.add(fn) };
   })();
 
-  /* Press-and-hold digital button: high on pointer down, low on release. */
+  /* Tap button: the join goes high→low when the finger lifts on the button without having moved.
+     Acting on release (not on touch-down) means a sideways swipe that starts on a button scrolls
+     the zone row without toggling anything. */
+  const TAP_SLOP = 10;   // px of movement that turns a tap into a scroll
   function bindMomentary(node, onPress, onRelease) {
-    let down = false;
-    const up = () => { if (!down) return; down = false; node.classList.remove("is-pressed"); onRelease(); };
+    let down = false, sx = 0, sy = 0, moved = false;
+    const clear = () => { down = false; node.classList.remove("is-pressed"); };
     node.addEventListener("pointerdown", e => {
       if (e.button !== undefined && e.button !== 0) return;
-      down = true; node.classList.add("is-pressed");
-      try { node.setPointerCapture(e.pointerId); } catch (_) {}
-      onPress();
+      down = true; moved = false; sx = e.clientX; sy = e.clientY; node.classList.add("is-pressed");
     });
-    node.addEventListener("pointerup", up);
-    node.addEventListener("pointercancel", up);
-    node.addEventListener("lostpointercapture", up);
-    node.addEventListener("keydown", e => { if ((e.key === " " || e.key === "Enter") && !down) { e.preventDefault(); down = true; onPress(); } });
-    node.addEventListener("keyup",   e => { if (e.key === " " || e.key === "Enter") up(); });
+    node.addEventListener("pointermove", e => { if (down && (Math.abs(e.clientX - sx) > TAP_SLOP || Math.abs(e.clientY - sy) > TAP_SLOP)) { moved = true; clear(); } });
+    node.addEventListener("pointerup", e => { if (!down) return; clear(); if (!moved) { onPress(); setTimeout(onRelease, 80); } });
+    node.addEventListener("pointercancel", clear);     // the browser took the gesture (scroll) – no tap
+    node.addEventListener("pointerleave", () => { if (down) clear(); });
+    node.addEventListener("keydown", e => { if (e.key === " " || e.key === "Enter") { e.preventDefault(); if (!e.repeat) { onPress(); setTimeout(onRelease, 80); } } });
     node.addEventListener("contextmenu", e => e.preventDefault());
   }
   const bindJoinButton = (node, join) => bindMomentary(node, () => B.press(join), () => B.release(join));
@@ -195,7 +196,13 @@
     // The fader has touch-action:none so the browser never turns the drag into a scroll and cancels it.
     const start = e => { dragging = true; root.classList.add("is-dragging"); send(fromPointer(e), true); };
     const move  = e => { if (dragging) send(fromPointer(e)); };
-    const end   = e => { if (!dragging) return; dragging = false; root.classList.remove("is-dragging"); send(fromPointer(e), true); };
+    // After a drag the knob stays where the finger left it until the feedback has settled: a group fader fans
+    // out to several zones and the DSP reports them back one at a time (paced), so the running average would
+    // wobble. Feedback is applied once nothing new has arrived for 500 ms (or after 4 s at most).
+    let holding = false, pending = null, settleTimer = null, holdMaxTimer = null;
+    const settle = () => { clearTimeout(settleTimer); clearTimeout(holdMaxTimer); holding = false; if (pending != null && !dragging) { value = pending; render(value); } pending = null; };
+    const end   = e => { if (!dragging) return; dragging = false; root.classList.remove("is-dragging"); send(fromPointer(e), true);
+      holding = true; pending = null; clearTimeout(settleTimer); settleTimer = setTimeout(settle, 500); clearTimeout(holdMaxTimer); holdMaxTimer = setTimeout(settle, 4000); };
     if (window.PointerEvent) {
       root.addEventListener("pointerdown", e => { if (e.button !== undefined && e.button !== 0) return; e.preventDefault(); try { root.setPointerCapture(e.pointerId); } catch (_) {} start(e); });
       root.addEventListener("pointermove", move);
@@ -217,7 +224,7 @@
       if (e.key === "End")  { e.preventDefault(); send(MAX, true); }
     });
 
-    subscribe(v => { if (!dragging) { value = Number(v) || 0; render(value); } });
+    subscribe(v => { const nv = Number(v) || 0; if (dragging) { pending = nv; return; } if (holding) { pending = nv; clearTimeout(settleTimer); settleTimer = setTimeout(settle, 500); return; } value = nv; render(value); });
 
     const nudge = dir => send(value + dir * MAX * (C.ui.volumeStepPercent / 100), true);
     return { root, readout, nudge, get value() { return value; } };
