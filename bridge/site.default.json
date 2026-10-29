@@ -237,7 +237,8 @@
     "volumeStepPercent": 5,
     "clock24h": true,
     "zoneLayout": "scroll",
-    "sourceLayout": "tiles"
+    "sourceLayout": "tiles",
+    "sourceColumns": 2
   },
   "advanced": {
     "scaling": {

@@ -211,6 +211,12 @@ body[data-sources="tiles"] .source-btn svg.icon { width: 1.35rem; height: 1.35re
 body[data-sources="tiles"] .source-btn span { white-space: normal; line-height: 1.1; max-width: 100%; display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
 body[data-sources="tiles"] .source-btn.is-some::after { margin: 0; position: absolute; top: 0.35rem; right: 0.35rem; }
 body[data-sources="tiles"] .source-btn { position: relative; }
+body[data-src-cols="2"] .source-list { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+body[data-src-cols="3"] .source-list { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+body[data-src-cols="4"] .source-list { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+body[data-src-cols="5"] .source-list { grid-template-columns: repeat(5, minmax(0, 1fr)); }
+body[data-sources="tiles"][data-src-cols="2"] .source-btn, body[data-sources="tiles"][data-src-cols="3"] .source-btn { font-size: 0.875rem; gap: 0.35rem; }
+body[data-sources="tiles"][data-src-cols="2"] .source-btn svg.icon, body[data-sources="tiles"][data-src-cols="3"] .source-btn svg.icon { width: 1.5rem; height: 1.5rem; }
 body[data-sources="tiles"] .source-group-btn { flex-direction: row; min-height: 2.75rem; font-size: 0.875rem; text-align: left; padding: 0.4rem 0.875rem; }
 body[data-sources="tiles"] .source-group-btn svg.icon { width: 1.1rem; height: 1.1rem; }
 .source-btn:hover { background: var(--navy-700); color: var(--fg); }

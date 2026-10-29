@@ -260,6 +260,7 @@ window.PANEL_CONFIG = {
     "lang": "en",
     "zoneLayout": "scroll",
     "sourceLayout": "tiles",
+    "sourceColumns": 2,
     "analogMax": 65535
   }
 };

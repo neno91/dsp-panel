@@ -124,6 +124,7 @@ function validateSite(s) {
   if (s.ui && s.ui.lang && !LANGS.includes(s.ui.lang)) p.push(`language must be ${LANGS.join("/")}`);
   if (s.ui && s.ui.zoneLayout && !["scroll", "scroll2", "grid"].includes(s.ui.zoneLayout)) p.push("zone layout must be scroll, scroll2 or grid");
   if (s.ui && s.ui.sourceLayout && !["tiles", "list"].includes(s.ui.sourceLayout)) p.push("source layout must be tiles or list");
+  if (s.ui && s.ui.sourceColumns != null && ![0, 2, 3, 4, 5].includes(Number(s.ui.sourceColumns))) p.push("source buttons per row must be auto, 2, 3, 4 or 5");
   const th = s.theme || {};
   const hex = v => /^#[0-9a-f]{6}$/i.test(v);
   Object.entries(th.colors || {}).forEach(([k, v]) => { if (!hex(v)) p.push(`theme colour ${k}: use #rrggbb`); });

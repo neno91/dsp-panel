@@ -48,7 +48,9 @@
   document.body.dataset.zones = C.ui.zoneLayout === "grid" ? "grid" : "scroll";
   document.body.dataset.zoneRows = C.ui.zoneLayout === "scroll2" ? "2" : "1";
   document.body.dataset.sources = C.ui.sourceLayout === "list" ? "list" : "tiles";
-  const srcLabel = s => (document.body.dataset.sources === "tiles" && s.short) ? s.short : s.name;
+  const srcCols = [2, 3, 4, 5].includes(Number(C.ui.sourceColumns)) ? Number(C.ui.sourceColumns) : 0;   // 0 = as many as fit
+  if (srcCols) document.body.dataset.srcCols = String(srcCols);
+  const srcLabel = s => (document.body.dataset.sources === "tiles" && s.short && (srcCols === 0 || srcCols >= 4)) ? s.short : s.name;   // wide tiles show the full name
   // live preview from /admin (same origin): the admin page posts the theme as it is being edited
   window.addEventListener("message", e => { if (e.origin === location.origin && e.data && e.data.t === "theme") applyTheme(e.data.theme); });
 

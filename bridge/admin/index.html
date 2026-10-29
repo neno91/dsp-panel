@@ -148,7 +148,8 @@
     </div>
     <div class="row">
       <div><label data-t>Zones layout</label><select id="ui-zones"><option value="scroll" data-t>Side-scrolling, one row</option><option value="scroll2" data-t>Side-scrolling, two rows</option><option value="grid" data-t>Grid (wraps, scrolls down)</option></select></div>
-      <div><label data-t>Source buttons</label><select id="ui-sources"><option value="tiles" data-t>Compact tiles</option><option value="list" data-t>List</option></select></div>
+      <div><label data-t>Source buttons</label><select id="ui-sources"><option value="tiles" data-t>Tiles (icon above name)</option><option value="list" data-t>List (icon beside name)</option></select></div>
+      <div><label data-t>Buttons per row</label><select id="ui-src-cols"><option value="2">2</option><option value="3">3</option><option value="4">4</option><option value="5">5</option><option value="0" data-t>As many as fit</option></select></div>
     </div>
     <div class="row">
       <div><label data-t>Bridge address as seen from the screens</label><input id="public-url" placeholder="auto"></div>
@@ -328,7 +329,7 @@
     "Saving …": "Lagrer …", "Not saved:\n• %s": "Ikke lagret:\n• %s", "Saved and applied. The panels reload.": "Lagret og tatt i bruk. Panelene laster på nytt.",
     "The file is not valid JSON.": "Filen er ikke gyldig JSON.", "Replace the whole configuration with “%s” (%s sources, %s zones)? The panels reload.": "Erstatte hele oppsettet med «%s» (%s kilder, %s soner)? Panelene laster på nytt.",
     "Uploading …": "Laster opp …", "Not applied:\n• %s": "Ikke tatt i bruk:\n• %s", "Configuration from “%s” applied.": "Konfigurasjon fra «%s» tatt i bruk.", "Reconnecting to the DSP …": "Kobler til DSP på nytt …",
-    "Zone": "Sone", "licence": "lisens", "Zones layout": "Sone-oppsett", "Side-scrolling, one row": "Sidescroll, én rad", "Side-scrolling, two rows": "Sidescroll, to rader", "Grid (wraps, scrolls down)": "Rutenett (bryter, scroller ned)", "Source buttons": "Kildeknapper", "Compact tiles": "Kompakte fliser", "List": "Liste", "Short name": "Kortnavn", "for tiles, e.g. Mic 1": "til fliser, f.eks. Mik 1", "All rights reserved.": "Alle rettigheter forbeholdt.", "New source": "Ny kilde", "New zone": "Ny sone", "New group": "Ny gruppe", "New source group": "Ny kildegruppe", "New screen": "Ny skjerm",
+    "Zone": "Sone", "licence": "lisens", "Zones layout": "Sone-oppsett", "Side-scrolling, one row": "Sidescroll, én rad", "Side-scrolling, two rows": "Sidescroll, to rader", "Grid (wraps, scrolls down)": "Rutenett (bryter, scroller ned)", "Source buttons": "Kildeknapper", "Tiles (icon above name)": "Fliser (ikon over navn)", "List (icon beside name)": "Liste (ikon ved siden av navn)", "Buttons per row": "Knapper per rad", "As many as fit": "Så mange som får plass", "Short name": "Kortnavn", "for tiles, e.g. Mic 1": "til fliser, f.eks. Mik 1", "All rights reserved.": "Alle rettigheter forbeholdt.", "New source": "Ny kilde", "New zone": "Ny sone", "New group": "Ny gruppe", "New source group": "Ny kildegruppe", "New screen": "Ny skjerm",
   };
   const LS_LANG = "dsp-panel.admin.lang";
   let adminLang = "en"; try { adminLang = localStorage.getItem(LS_LANG) || "en"; } catch (_) {}
@@ -570,7 +571,7 @@
     $("#dsp-gap").value = site.dsp.minGapMs != null ? site.dsp.minGapMs : 100; $("#dsp-reply").value = site.dsp.replyTimeoutMs != null ? site.dsp.replyTimeoutMs : 400;
     $("#ctrl-mode").value = site.control.mode; $("#ctrl-level").value = site.control.inputLevelBlock; $("#ctrl-mute").value = site.control.inputMuteBlock; $("#ctrl-zone").value = site.control.zoneBlock;
     $("#lv-in-min").value = site.levels.input.min; $("#lv-in-max").value = site.levels.input.max; $("#lv-zone-min").value = site.levels.zone.min; $("#lv-zone-max").value = site.levels.zone.max;
-    $("#site-name").value = site.site.name; $("#site-area").value = site.site.area; $("#ui-step").value = (site.ui || {}).volumeStepPercent || 5; $("#ui-lang").value = (site.ui || {}).lang || "en"; $("#ui-zones").value = (site.ui || {}).zoneLayout || "scroll"; $("#ui-sources").value = (site.ui || {}).sourceLayout || "tiles"; $("#admin-password").value = (site.admin || {}).password || "";
+    $("#site-name").value = site.site.name; $("#site-area").value = site.site.area; $("#ui-step").value = (site.ui || {}).volumeStepPercent || 5; $("#ui-lang").value = (site.ui || {}).lang || "en"; $("#ui-zones").value = (site.ui || {}).zoneLayout || "scroll"; $("#ui-sources").value = (site.ui || {}).sourceLayout || "tiles"; $("#ui-src-cols").value = String((site.ui || {}).sourceColumns != null ? (site.ui || {}).sourceColumns : 2); $("#admin-password").value = (site.admin || {}).password || "";
     $("#public-url").value = site.publicUrl || ""; $("#sec-token").checked = !site.security || site.security.requireToken !== false;
     fillTheme(); renderSources(); renderZones(); renderGroups(); renderSourceGroups(); renderPanels();
   }
@@ -581,7 +582,7 @@
     site.control = { mode: $("#ctrl-mode").value, inputLevelBlock: $("#ctrl-level").value.trim(), inputMuteBlock: $("#ctrl-mute").value.trim(), zoneBlock: $("#ctrl-zone").value.trim() };
     site.levels = { input: { min: Number($("#lv-in-min").value), max: Number($("#lv-in-max").value) }, zone: { min: Number($("#lv-zone-min").value), max: Number($("#lv-zone-max").value) } };
     site.site = { name: $("#site-name").value.trim(), area: $("#site-area").value.trim() };
-    site.ui = Object.assign(site.ui || {}, { volumeStepPercent: Number($("#ui-step").value) || 5, lang: $("#ui-lang").value, zoneLayout: $("#ui-zones").value, sourceLayout: $("#ui-sources").value });
+    site.ui = Object.assign(site.ui || {}, { volumeStepPercent: Number($("#ui-step").value) || 5, lang: $("#ui-lang").value, zoneLayout: $("#ui-zones").value, sourceLayout: $("#ui-sources").value, sourceColumns: Number($("#ui-src-cols").value) });
     site.admin = { password: $("#admin-password").value };
     readTheme(); site.publicUrl = $("#public-url").value.trim(); site.security = Object.assign(site.security || {}, { requireToken: $("#sec-token").checked });
     (site.panels || []).forEach(p => { if (p.views && p.views.length === VIEWS.length) delete p.views; });
