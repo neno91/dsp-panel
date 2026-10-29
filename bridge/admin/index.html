@@ -47,6 +47,8 @@
   .bar { position: fixed; left: 0; right: 0; bottom: 0; display: flex; gap: 10px; align-items: center; padding: 12px max(16px, 3vw); background: #041721; border-top: 1px solid var(--line); z-index: 5; }
   .bar .msg { flex: 1; font-size: 13px; color: var(--dim); white-space: pre-wrap; }
   .bar .msg.err { color: #ffb0a5; } .bar .msg.ok { color: var(--ok); }
+  .powered { grid-column: 1 / -1; text-align: center; font-size: 12px; color: var(--faint); padding: 8px 0 0; }
+  .powered a { color: var(--dim); text-decoration: none; } .powered a:hover { color: var(--fg); text-decoration: underline; }
   .ref { font-family: ui-monospace, Menlo, monospace; font-size: 12px; color: var(--dim); }
   .help { font-size: 12px; color: var(--faint); margin: 6px 0 0; }
   code { font-family: ui-monospace, Menlo, monospace; background: #041721; padding: 1px 5px; border-radius: 4px; }
@@ -243,6 +245,8 @@
     <h2><span data-t>Derived joins and OIDs</span> <small data-t>for reference – updated after saving</small></h2>
     <table id="joins"><thead><tr><th data-t>Type</th><th data-t>Name</th><th data-t>In/out</th><th>Joins</th><th data-t>Control</th></tr></thead><tbody></tbody></table>
   </section>
+  <!-- Attribution notice required by the licence (LICENSE §2) – keep visible -->
+  <p class="powered">Powered by <a href="https://github.com/neno91/dsp-panel" target="_blank" rel="noopener">DSP Panel</a> · <a href="https://github.com/neno91/dsp-panel/blob/main/LICENSE" target="_blank" rel="noopener" data-t>licence</a></p>
 </main>
 
 <div class="bar">
@@ -320,7 +324,7 @@
     "Saving …": "Lagrer …", "Not saved:\n• %s": "Ikke lagret:\n• %s", "Saved and applied. The panels reload.": "Lagret og tatt i bruk. Panelene laster på nytt.",
     "The file is not valid JSON.": "Filen er ikke gyldig JSON.", "Replace the whole configuration with “%s” (%s sources, %s zones)? The panels reload.": "Erstatte hele oppsettet med «%s» (%s kilder, %s soner)? Panelene laster på nytt.",
     "Uploading …": "Laster opp …", "Not applied:\n• %s": "Ikke tatt i bruk:\n• %s", "Configuration from “%s” applied.": "Konfigurasjon fra «%s» tatt i bruk.", "Reconnecting to the DSP …": "Kobler til DSP på nytt …",
-    "Zone": "Sone", "New source": "Ny kilde", "New zone": "Ny sone", "New group": "Ny gruppe", "New source group": "Ny kildegruppe", "New screen": "Ny skjerm",
+    "Zone": "Sone", "licence": "lisens", "New source": "Ny kilde", "New zone": "Ny sone", "New group": "Ny gruppe", "New source group": "Ny kildegruppe", "New screen": "Ny skjerm",
   };
   const LS_LANG = "dsp-panel.admin.lang";
   let adminLang = "en"; try { adminLang = localStorage.getItem(LS_LANG) || "en"; } catch (_) {}

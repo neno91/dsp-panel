@@ -143,3 +143,10 @@ WebSocket protocol (JSON, both directions): `{"t":"b"|"n","j":<join>,"v":<value>
 Environment overrides: `PORT`, `DSP_HOST`, `DSP_PORT`, `DSP_PASSWORD`
 (never written to `site.json`), `DSP_DEBUG=1` (log all DSP traffic),
 `BUILD_DIR`.
+
+## Licence
+
+MIT with an attribution clause – see [LICENSE](LICENSE). Free to use, modify
+and sell, including in commercial installations, as long as the
+"Powered by DSP Panel" notice in the admin page stays visible and your
+documentation says the product is based on DSP Panel.

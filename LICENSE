@@ -1,6 +1,6 @@
-MIT License
+DSP Panel License (MIT with attribution)
 
-Copyright (c) 2026 DSP Panel contributors
+Copyright (c) 2026 Jørgen Skar
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
@@ -9,8 +9,19 @@ to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
 copies of the Software, and to permit persons to whom the Software is
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+1. The above copyright notice and this permission notice shall be included
+   in all copies or substantial portions of the Software.
+
+2. Attribution. Any product, service or installation that includes the
+   Software or a derivative of it, including commercial ones, must keep the
+   "DSP Panel" name and the link to its source repository visible to its
+   users in the administration interface (the "Powered by DSP Panel" notice
+   shipped with the Software, or an equivalent of similar prominence), and
+   must state in its documentation or about screen that it is based on
+   DSP Panel. The notice may not be removed, hidden or made illegible.
+   Nothing in this licence grants the right to use the name "DSP Panel" or
+   the copyright holder's name to endorse or promote derived products
+   without prior written permission.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
