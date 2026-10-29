@@ -7,6 +7,7 @@
    panel to Crestron touch screens. The DSP is the single source of
    truth: every lit state and fader position comes from DMP responses.
 
+     lib/bridge.js    createBridge – wires everything below
      lib/site.js      site.json: load, validate, apply, tokens, theme
      lib/model.js     joins ⇄ DSP objects, generated panel config
      lib/dsp.js       DspLink – paced SIS session over TCP
@@ -22,32 +23,6 @@
    ------------------------------------------------------------------ */
 "use strict";
 const path = require("path");
-const { SiteStore } = require("./lib/site");
-const { DspLink } = require("./lib/dsp");
-const { Controller } = require("./lib/control");
-const { Auth } = require("./lib/auth");
-const { Publisher } = require("./lib/publish");
-const { createHttpServer } = require("./lib/http");
-const { attachWebSocket } = require("./lib/ws");
-const { log } = require("./lib/util");
+const { createBridge } = require("./lib/bridge");
 
-const ROOT = path.resolve(__dirname, "..");
-const store = new SiteStore(process.argv[2] || path.join(__dirname, "site.json"), { dataDir: path.join(__dirname, "data") });
-if (store.security().requireToken && !(store.site.admin || {}).password) log("WARNING: tokens are required but /admin has no password – set one in /admin → Site and panel");
-if (!store.security().requireToken) log("WARNING: security.requireToken is off – anyone on the network can open the panel");
-
-const dsp = new DspLink({ conn: () => store.conn(), timing: () => store.site.dsp, debug: !!process.env.DSP_DEBUG });
-const ctrl = new Controller(store, dsp);
-dsp.session = { verbose: ctrl.M.sis.verbose, keepAlive: ctrl.M.sis.keepAlive };
-const auth = new Auth(store);
-const publisher = new Publisher(store, ROOT, { buildDir: process.env.BUILD_DIR });
-
-const ctx = { store, auth, ctrl, dsp, publisher, root: ROOT, adminDir: path.join(__dirname, "admin"), clientCount: () => 0 };
-const server = createHttpServer(ctx);
-const ws = attachWebSocket(server, ctx);
-ctx.clientCount = ws.clientCount;
-
-server.listen(store.listenPort, store.listenHost, () => {
-  log(`bridge listening on http://${store.listenHost}:${store.listenPort}  (panel · /admin · /ws)`);
-  dsp.connect();
-});
+createBridge({ sitePath: process.argv[2] || path.join(__dirname, "site.json"), rootDir: path.resolve(__dirname, "..") }).listen();
