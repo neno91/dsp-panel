@@ -63,49 +63,49 @@
     {
       "id": "mic1",
       "input": 1,
-      "name": "Mikrofon 1",
+      "name": "Microphone 1",
       "icon": "mic",
       "group": ""
     },
     {
       "id": "mic2",
       "input": 2,
-      "name": "Mikrofon 2",
+      "name": "Microphone 2",
       "icon": "mic",
       "group": ""
     },
     {
       "id": "mic3",
       "input": 3,
-      "name": "Mikrofon 3",
+      "name": "Microphone 3",
       "icon": "mic",
       "group": ""
     },
     {
       "id": "mic4",
       "input": 4,
-      "name": "Mikrofon 4",
+      "name": "Microphone 4",
       "icon": "mic",
       "group": ""
     },
     {
       "id": "music1",
       "input": 5,
-      "name": "Musikk 1",
+      "name": "Music 1",
       "icon": "music",
       "group": ""
     },
     {
       "id": "music2",
       "input": 6,
-      "name": "Musikk 2",
+      "name": "Music 2",
       "icon": "music",
       "group": ""
     },
     {
       "id": "music3",
       "input": 7,
-      "name": "Musikk 3",
+      "name": "Music 3",
       "icon": "music",
       "group": ""
     },
@@ -119,14 +119,14 @@
     {
       "id": "in9",
       "input": 9,
-      "name": "Inngang 9",
+      "name": "Input 9",
       "icon": "xlr",
       "group": ""
     },
     {
       "id": "in10",
       "input": 10,
-      "name": "Inngang 10",
+      "name": "Input 10",
       "icon": "xlr",
       "group": ""
     }
@@ -135,28 +135,28 @@
     {
       "id": "zone1",
       "output": 1,
-      "name": "Sone 1",
+      "name": "Zone 1",
       "icon": "speaker",
       "hint": ""
     },
     {
       "id": "zone2",
       "output": 2,
-      "name": "Sone 2",
+      "name": "Zone 2",
       "icon": "speaker",
       "hint": ""
     },
     {
       "id": "zone3",
       "output": 3,
-      "name": "Sone 3",
+      "name": "Zone 3",
       "icon": "speaker",
       "hint": ""
     },
     {
       "id": "zone4",
       "output": 4,
-      "name": "Sone 4",
+      "name": "Zone 4",
       "icon": "speaker",
       "hint": ""
     }
@@ -164,14 +164,14 @@
   "groups": [
     {
       "id": "all",
-      "name": "Alle soner",
+      "name": "All zones",
       "zones": "*"
     }
   ],
   "sourceGroups": [
     {
       "id": "mics",
-      "name": "Alle mikrofoner",
+      "name": "All microphones",
       "icon": "mic",
       "mode": "toggle",
       "sources": [
@@ -183,7 +183,7 @@
     },
     {
       "id": "music",
-      "name": "Musikk",
+      "name": "Music",
       "icon": "music",
       "mode": "exclusive",
       "sources": [
@@ -196,7 +196,7 @@
   "panels": [
     {
       "id": "web",
-      "name": "Nettleser / mobil",
+      "name": "Browser / mobile",
       "host": "",
       "user": "admin",
       "password": "",

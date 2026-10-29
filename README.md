@@ -17,6 +17,24 @@ is what the DSP reports, so several panels, phones and the DSP's own software
 always agree. Everything – DSP address, inputs, outputs, groups, screens,
 logo and colours – is configured on the bridge's `/admin` page.
 
+## Screenshots
+
+| Zones | Mixer |
+|---|---|
+| ![Zones view](docs/screenshots/panel-zones.png) | ![Mixer view](docs/screenshots/panel-mixer.png) |
+
+| Zone group (several zones controlled together) | On a phone |
+|---|---|
+| ![Zone group](docs/screenshots/panel-group.png) | <img src="docs/screenshots/panel-phone.png" alt="Phone layout" width="260"> |
+
+**/admin** – everything is configured here, no files to edit:
+
+![Admin overview](docs/screenshots/admin-overview.png)
+
+| Screens and access (zones per screen, access keys, publishing) | Appearance (logo, background, full palette, live preview) |
+|---|---|
+| ![Screens and access](docs/screenshots/admin-screens.png) | ![Appearance editor](docs/screenshots/admin-appearance.png) |
+
 ## Layout
 
 ```

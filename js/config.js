@@ -23,49 +23,49 @@ window.PANEL_CONFIG = {
     {
       "id": "mic1",
       "input": 1,
-      "name": "Mikrofon 1",
+      "name": "Microphone 1",
       "icon": "mic",
       "joinOffset": 0
     },
     {
       "id": "mic2",
       "input": 2,
-      "name": "Mikrofon 2",
+      "name": "Microphone 2",
       "icon": "mic",
       "joinOffset": 1
     },
     {
       "id": "mic3",
       "input": 3,
-      "name": "Mikrofon 3",
+      "name": "Microphone 3",
       "icon": "mic",
       "joinOffset": 2
     },
     {
       "id": "mic4",
       "input": 4,
-      "name": "Mikrofon 4",
+      "name": "Microphone 4",
       "icon": "mic",
       "joinOffset": 3
     },
     {
       "id": "music1",
       "input": 5,
-      "name": "Musikk 1",
+      "name": "Music 1",
       "icon": "music",
       "joinOffset": 4
     },
     {
       "id": "music2",
       "input": 6,
-      "name": "Musikk 2",
+      "name": "Music 2",
       "icon": "music",
       "joinOffset": 5
     },
     {
       "id": "music3",
       "input": 7,
-      "name": "Musikk 3",
+      "name": "Music 3",
       "icon": "music",
       "joinOffset": 6
     },
@@ -79,14 +79,14 @@ window.PANEL_CONFIG = {
     {
       "id": "in9",
       "input": 9,
-      "name": "Inngang 9",
+      "name": "Input 9",
       "icon": "xlr",
       "joinOffset": 8
     },
     {
       "id": "in10",
       "input": 10,
-      "name": "Inngang 10",
+      "name": "Input 10",
       "icon": "xlr",
       "joinOffset": 9
     }
@@ -104,7 +104,7 @@ window.PANEL_CONFIG = {
   "zones": [
     {
       "id": "zone1",
-      "name": "Sone 1",
+      "name": "Zone 1",
       "icon": "speaker",
       "select": 31,
       "volume": 31,
@@ -112,7 +112,7 @@ window.PANEL_CONFIG = {
     },
     {
       "id": "zone2",
-      "name": "Sone 2",
+      "name": "Zone 2",
       "icon": "speaker",
       "select": 32,
       "volume": 32,
@@ -120,7 +120,7 @@ window.PANEL_CONFIG = {
     },
     {
       "id": "zone3",
-      "name": "Sone 3",
+      "name": "Zone 3",
       "icon": "speaker",
       "select": 33,
       "volume": 33,
@@ -128,7 +128,7 @@ window.PANEL_CONFIG = {
     },
     {
       "id": "zone4",
-      "name": "Sone 4",
+      "name": "Zone 4",
       "icon": "speaker",
       "select": 34,
       "volume": 34,
@@ -138,14 +138,14 @@ window.PANEL_CONFIG = {
   "groups": [
     {
       "id": "all",
-      "name": "Alle soner",
+      "name": "All zones",
       "zones": "*"
     }
   ],
   "sourceGroups": [
     {
       "id": "mics",
-      "name": "Alle mikrofoner",
+      "name": "All microphones",
       "icon": "mic",
       "mode": "toggle",
       "sources": [
@@ -157,7 +157,7 @@ window.PANEL_CONFIG = {
     },
     {
       "id": "music",
-      "name": "Musikk",
+      "name": "Music",
       "icon": "music",
       "mode": "exclusive",
       "sources": [
